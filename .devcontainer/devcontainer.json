@@ -1,0 +1,30 @@
+{
+  "name": "Algebro",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/algebro",
+  "remoteUser": "node",
+  "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "sudo chown node:node node_modules && npm ci",
+  "portsAttributes": {
+    "5173": { "label": "Algebro (Dev-Server)", "onAutoForward": "notify" },
+    "4173": { "label": "Algebro (Preview)", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "vitest.explorer",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": false,
+        "eslint.useFlatConfig": true,
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  }
+}

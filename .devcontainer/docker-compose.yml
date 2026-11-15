@@ -1,0 +1,28 @@
+name: algebro
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # The container stays up; Vite is started on demand via "scripts/dev.sh dev"
+    # or from the VS Code terminal.
+    command: sleep infinity
+    working_dir: /workspaces/algebro
+    environment:
+      # Read in vite.config.ts: bind to 0.0.0.0 so the host can reach the server.
+      DEV_CONTAINER: "true"
+      # Set to "true" if the repo lives on a Windows drive (e.g. /mnt/d/... under
+      # WSL2), because file change events do not arrive there.
+      VITE_USE_POLLING: ${VITE_USE_POLLING:-false}
+    ports:
+      - "${DEV_PORT:-5173}:5173"      # npm run dev
+      - "${PREVIEW_PORT:-4173}:4173"  # npm run preview
+    volumes:
+      # Project folder from the host
+      - ..:/workspaces/algebro:cached
+      # node_modules in a volume: faster and no Windows/Linux conflicts
+      - node_modules:/workspaces/algebro/node_modules
+
+volumes:
+  node_modules:

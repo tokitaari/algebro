@@ -17,6 +17,25 @@ npm run build     # Typprüfung + Produktions-Build nach dist/
 npm run preview   # Build lokal ansehen
 ```
 
+## Dev-Container
+
+Alles läuft in einem Container mit Node 22; `node_modules` liegt in einem Docker-Volume.
+
+**Mit VS Code:** Ordner öffnen und „Reopen in Container“ wählen. Danach im Terminal `npm run dev` starten, die Seite ist unter http://localhost:5173 erreichbar.
+
+**Ohne VS Code:**
+
+```bash
+scripts/dev.sh dev      # Container starten und Dev-Server auf http://localhost:5173
+scripts/dev.sh check    # Lint, Tests und Build wie in der CI
+scripts/dev.sh preview  # Produktions-Build auf http://localhost:4173
+scripts/dev.sh shell    # Shell im Container
+scripts/dev.sh down     # stoppen
+scripts/dev.sh reset    # stoppen und node_modules-Volume löschen
+```
+
+Liegt das Repo unter WSL2 auf einem Windows-Laufwerk (`/mnt/d/...`), schaltet das Skript das Polling für Dateiänderungen automatisch ein. Besser und schneller ist ein Klon im WSL-Dateisystem (z. B. `~/algebro`). Ports lassen sich mit `DEV_PORT` und `PREVIEW_PORT` ändern.
+
 ## Stack
 
 React, TypeScript, Vite, React Router, Vitest (mit Testing Library), ESLint.
