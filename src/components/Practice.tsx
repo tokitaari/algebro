@@ -16,6 +16,7 @@ import {
 } from '../practice/session'
 import { useTopicProgress } from '../practice/useTopicProgress'
 import MathInput from './MathInput'
+import SkillPath from './SkillPath'
 import SolutionSteps from './SolutionSteps'
 import Tex from './Tex'
 
@@ -132,15 +133,15 @@ export default function Practice({ topic, rng = Math.random }: PracticeProps) {
         <SeriesSummary session={session} summaryRef={summaryRef} onRestart={startSeries} />
       ) : (
         <div className="practice-task">
+          <SkillPath
+            total={session.tasks.length}
+            outcomes={session.outcomes}
+            current={session.index}
+            label="Fortschritt in dieser Serie"
+          />
           <p className="practice-counter">
             Aufgabe {session.index + 1} von {session.tasks.length}
           </p>
-          <progress
-            className="practice-bar"
-            value={session.outcomes.length}
-            max={session.tasks.length}
-            aria-label="Fortschritt in dieser Serie"
-          />
           <p className="example-instruction">{task.instruction}</p>
           <Tex latex={toLatex(task.prompt)} display />
 
@@ -158,7 +159,7 @@ export default function Practice({ topic, rng = Math.random }: PracticeProps) {
               describedBy={hintId}
             />
             <p id={hintId} className="practice-hint">
-              Statt x² geht auch x^2, und 2x oder 3(x+1) darfst du ohne Malzeichen schreiben.
+              Tipp: x² geht auch als x^2, und 2x oder 3(x+1) darfst du ohne Malzeichen tippen.
             </p>
             <div className="practice-actions">
               <button type="submit" className="btn btn-primary" disabled={finished}>
@@ -196,14 +197,34 @@ export default function Practice({ topic, rng = Math.random }: PracticeProps) {
   )
 }
 
+/** One check result as a pill: "✓ äquivalent", "✗ Form nicht ok". The glyph backs up the colour. */
+function Chip({ ok, children }: { ok: boolean; children: string }) {
+  return (
+    <span className={ok ? 'chip chip-ok' : 'chip chip-bad'}>
+      <span aria-hidden="true">{ok ? '✓' : '✗'}</span> {children}
+    </span>
+  )
+}
+
 function FeedbackMessage({ feedback }: { feedback: Feedback }) {
   switch (feedback.kind) {
     case 'correct':
-      return <p className="feedback feedback-correct">✓ Richtig!</p>
+      return (
+        <div className="feedback feedback-correct">
+          <p>✓ Richtig!</p>
+          <div className="chips">
+            <Chip ok>äquivalent</Chip>
+            <Chip ok>Form ok</Chip>
+          </div>
+        </div>
+      )
     case 'wrong':
       return (
         <div className="feedback feedback-wrong">
           <p>✗ Leider falsch. Dein Term ist nicht gleichwertig zur Aufgabe.</p>
+          <div className="chips">
+            <Chip ok={false}>nicht äquivalent</Chip>
+          </div>
           {feedback.answer && (
             <p className="feedback-answer">
               Deine Antwort: <Tex latex={toLatex(feedback.answer)} />
@@ -217,6 +238,10 @@ function FeedbackMessage({ feedback }: { feedback: Feedback }) {
       return (
         <div className="feedback feedback-form">
           <p>Fast: Dein Term ist gleichwertig, aber noch nicht in der gewünschten Form.</p>
+          <div className="chips">
+            <Chip ok>äquivalent</Chip>
+            <Chip ok={false}>Form nicht ok</Chip>
+          </div>
           <p>{feedback.hint.message}</p>
         </div>
       )
@@ -260,16 +285,7 @@ function SeriesSummary({
       <h3 ref={summaryRef} tabIndex={-1}>
         Serie geschafft: {countCorrect(session)} von {total} richtig
       </h3>
-      <ol className="series-dots" aria-label="Ergebnis je Aufgabe">
-        {session.outcomes.map((outcome, i) => (
-          <li key={i} className={outcome === 'correct' ? 'dot-correct' : 'dot-wrong'}>
-            <span aria-hidden="true">{outcome === 'correct' ? '✓' : '✗'}</span>
-            <span className="visually-hidden">
-              Aufgabe {i + 1}: {outcome === 'correct' ? 'richtig' : 'falsch'}
-            </span>
-          </li>
-        ))}
-      </ol>
+      <SkillPath total={total} outcomes={session.outcomes} label="Ergebnis je Aufgabe" />
       <button type="button" className="btn btn-primary" onClick={onRestart}>
         Neue Serie
       </button>

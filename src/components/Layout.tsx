@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { topics } from '../topics'
+import ThemeToggle from './ThemeToggle'
 
 export default function Layout() {
   return (
@@ -8,9 +9,12 @@ export default function Layout() {
         Zum Inhalt springen
       </a>
       <header className="app-header">
-        <Link to="/" className="brand">
-          Lemmio
-        </Link>
+        <div className="app-header-top">
+          <Link to="/" className="brand">
+            Lemmio<span aria-hidden="true">//</span>
+          </Link>
+          <ThemeToggle />
+        </div>
         <nav aria-label="Teilthemen" className="topic-nav">
           {topics.map((topic) => (
             <NavLink key={topic.slug} to={`/${topic.slug}`}>

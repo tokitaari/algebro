@@ -5,7 +5,30 @@
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Lemmio – Algebra üben für Klasse 8 bis Abitur" />
+    <meta name="theme-color" content="#e9edfb" />
     <title>Lemmio</title>
+    <script>
+      // Sets the theme before the first paint, so the page never flashes in the wrong theme.
+      // Stored choice first, then prefers-color-scheme. Keep the key and colours in sync
+      // with THEME_STORAGE_KEY and THEME_COLORS in src/theme/theme.ts.
+      (function () {
+        var theme
+        try {
+          var stored = window.localStorage.getItem('lemmio:theme')
+          if (stored === 'light' || stored === 'dark') theme = stored
+        } catch (e) {
+          // Storage is blocked: fall back to the system setting.
+        }
+        if (!theme) {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        var root = document.documentElement
+        root.setAttribute('data-theme', theme)
+        root.style.colorScheme = theme
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', theme === 'dark' ? '#0a1028' : '#e9edfb')
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

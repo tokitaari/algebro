@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
+import Breadcrumb from '../components/Breadcrumb'
 import FormulaList from '../components/FormulaList'
 import Practice from '../components/Practice'
 import RichText from '../components/RichText'
@@ -18,9 +19,7 @@ export default function TopicPage() {
 
   return (
     <>
-      <p>
-        <Link to="/">← Zur Startseite</Link>
-      </p>
+      <Breadcrumb current={topic.slug.replaceAll('-', '_')} />
       <h1>{topic.title}</h1>
       <p className="lead">{topic.summary}</p>
 

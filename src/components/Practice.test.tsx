@@ -68,6 +68,40 @@ describe('practice area', () => {
     expect(screen.getByText('Bisher: 0 von 1 richtig.')).toBeInTheDocument()
   })
 
+  it('shows the check as chips: equivalent and form', async () => {
+    const { tasks, answer, status } = setup()
+    await answer(solution(tasks, 0))
+    expect(status().getByText('äquivalent')).toBeInTheDocument()
+    expect(status().getByText('Form ok')).toBeInTheDocument()
+  })
+
+  it('shows a single "nicht äquivalent" chip for a wrong answer', async () => {
+    const { answer, status } = setup()
+    await answer('0')
+    expect(status().getByText('nicht äquivalent')).toBeInTheDocument()
+    expect(status().queryByText('Form ok')).not.toBeInTheDocument()
+  })
+
+  it('shows "äquivalent" but "Form nicht ok" for an equivalent term in the wrong form', async () => {
+    const { tasks, answer, status } = setup()
+    await answer(toText(tasks[0]!.prompt))
+    expect(status().getByText('äquivalent')).toBeInTheDocument()
+    expect(status().getByText('Form nicht ok')).toBeInTheDocument()
+  })
+
+  it('shows the series as a path of ten nodes and moves the marker along', async () => {
+    const { tasks, user, answer } = setup()
+    const nodes = () => within(screen.getByRole('list', { name: 'Fortschritt in dieser Serie' })).getAllByRole('listitem')
+    expect(nodes()).toHaveLength(10)
+    expect(nodes()[0]).toHaveTextContent('Aufgabe 1: aktuell')
+    expect(nodes()[1]).toHaveTextContent('Aufgabe 2: offen')
+    await answer(solution(tasks, 0))
+    expect(nodes()[0]).toHaveTextContent('Aufgabe 1: richtig')
+    await user.click(screen.getByRole('button', { name: 'Nächste Aufgabe' }))
+    expect(nodes()[0]).toHaveTextContent('Aufgabe 1: richtig')
+    expect(nodes()[1]).toHaveTextContent('Aufgabe 2: aktuell')
+  })
+
   it.each<TopicId>(['ausmultiplizieren', 'binomische-formeln', 'faktorisieren'])(
     '%s: an equivalent term in the wrong form gets a hint and can be corrected',
     async (topic) => {
