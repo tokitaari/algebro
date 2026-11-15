@@ -3,9 +3,9 @@ import katex from 'katex'
 import { describe, expect, it } from 'vitest'
 import { areEquivalent, checkAnswer, parse, toLatex, toPolynomial, toText, TOPIC_IDS } from '../math'
 import { allSubtopics, catalog } from '../catalog'
-import { deckMarkup, validateDeck } from '../cards'
+import { deckMarkup, deckTerms, validateDeck } from '../cards'
 import { allFormulas, findContent, findFormula, formulaGroupsOf, formulaLatex, formulaSheets, topicContent } from './index'
-import { chainToLatex, splitChain, splitMarkup } from './markup'
+import { chainToLatex, splitChain, splitMarkup, termToLatex } from './markup'
 import type { TopicContent } from './types'
 
 /** Every markup text of a topic: paragraphs, procedure steps, pitfalls, example comments. */
@@ -113,6 +113,12 @@ describe('topic content', () => {
 
     it('has a valid card deck, if any', () => {
       if (content.cards) expect(validateDeck({ id: topic, cards: content.cards })).toEqual([])
+    })
+
+    it('typesets every term of its card widgets and term questions', () => {
+      for (const term of content.cards ? deckTerms({ id: topic, cards: content.cards }) : []) {
+        expect(() => renderStrict(termToLatex(term)), term).not.toThrow()
+      }
     })
 
     it('only references known formulas', () => {

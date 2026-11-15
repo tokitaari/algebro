@@ -5,7 +5,7 @@ import { chainToLatex, splitChain, splitMarkup, termToLatex } from '../content/m
 import { parse, toPolynomial } from '../math'
 import { demoDeck } from '../pages/dev/demoDeck'
 import type { Card, Deck } from './types'
-import { deckMarkup, validateDeck } from './validate'
+import { deckMarkup, deckTerms, validateDeck } from './validate'
 
 const deckOf = (...cards: Card[]): Deck => ({ id: 'test/deck/a', cards })
 const card = (extra: Partial<Card> = {}): Card => ({ id: 'karte', title: 'Titel', body: ['Text'], ...extra })
@@ -63,6 +63,32 @@ describe('validateDeck', () => {
   })
 })
 
+describe('area model widget', () => {
+  it('reports the problems of the area model with the card', () => {
+    const area = card({ widget: { kind: 'area-model', first: ['x', 'x+1'], second: ['-x'], mode: 'expand' } })
+    expect(validateDeck(deckOf(area))).toEqual([
+      'card "karte": area-model: summand "x+1" must be a single term',
+      'card "karte": area-model: second side needs a positive summand',
+    ])
+    const fine = card({ widget: { kind: 'area-model', first: ['x', '3'], second: ['x', '-5'], mode: 'expand' } })
+    expect(validateDeck(deckOf(fine))).toEqual([])
+  })
+})
+
+describe('deckTerms', () => {
+  it('collects widget lines and the terms of term questions', () => {
+    const terms = deckTerms(
+      deckOf(
+        card({ id: 'a', widget: { kind: 'term-steps', start: '(x+1)^2', steps: [{ term: 'x^2+2x+1' }] } }),
+        card({ id: 'b', widget: { kind: 'area-model', first: ['x', '3'], second: ['x', '3'], mode: 'factor' } }),
+        card({ id: 'c', question: { kind: 'term', prompt: 'P', term: '(x+2)(x+4)', answer: 'x^2+6x+8', form: { kind: 'expanded' } } }),
+        card({ id: 'd', widget: { kind: 'area-model', first: [], second: ['x'], mode: 'expand' } }),
+      ),
+    )
+    expect(terms).toEqual(['(x+1)^2', 'x^2+2x+1', '(x + 3)^2', 'x² + 3x + 3x + 9', 'x² + 6x + 9', '3x + 3x', '6x', '(x+2)(x+4)'])
+  })
+})
+
 describe('deckMarkup', () => {
   it('collects texts, notes, prompts, options, option feedback and explanations', () => {
     const texts = deckMarkup(
@@ -98,14 +124,8 @@ describe('demo deck', () => {
         expect(() => renderStrict(chainToLatex(segment.source))).not.toThrow()
       }
     }
-    for (const c of demoDeck.cards) {
-      if (c.widget?.kind === 'term-steps') {
-        for (const term of [c.widget.start, ...c.widget.steps.map((s) => s.term)]) {
-          expect(() => renderStrict(termToLatex(term))).not.toThrow()
-        }
-      }
-      const shown = c.question?.kind === 'term' ? c.question.term : undefined
-      if (shown) expect(() => renderStrict(termToLatex(shown))).not.toThrow()
+    for (const term of deckTerms(demoDeck)) {
+      expect(() => renderStrict(termToLatex(term)), term).not.toThrow()
     }
   })
 })

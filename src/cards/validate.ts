@@ -1,5 +1,6 @@
 import type { Markup } from '../content/types'
 import { areEquivalent, checkAnswer, parse, type Expr } from '../math'
+import { areaModelProblems, areaModelTerms, buildAreaModel } from './areaModel'
 import { termQuestionKey } from './deck'
 import { CARD_ID, DECK_ID } from './storage'
 import type { Card, CardQuestion, CardWidget, Deck } from './types'
@@ -49,6 +50,8 @@ function widgetProblems(widget: CardWidget): string[] {
         return areEquivalent(start, expr) ? [] : [`term-steps: "${step.term}" is not equivalent to "${widget.start}"`]
       })
     }
+    case 'area-model':
+      return areaModelProblems(widget)
   }
 }
 
@@ -73,6 +76,26 @@ function questionProblems(question: CardQuestion): string[] {
       return problems
     }
   }
+}
+
+/**
+ * Every term a deck typesets outside its markup: the lines of its widgets and
+ * the terms shown with term questions. Content tests render them with KaTeX
+ * in strict mode. Widgets with problems are skipped (`validateDeck` reports them).
+ */
+export function deckTerms(deck: Deck): string[] {
+  return deck.cards.flatMap(cardTerms)
+}
+
+function cardTerms(card: Card): string[] {
+  const terms: string[] = []
+  const widget = card.widget
+  if (widget?.kind === 'term-steps') terms.push(widget.start, ...widget.steps.map((s) => s.term))
+  if (widget?.kind === 'area-model' && areaModelProblems(widget).length === 0) {
+    terms.push(...areaModelTerms(buildAreaModel(widget)))
+  }
+  if (card.question?.kind === 'term' && card.question.term !== undefined) terms.push(card.question.term)
+  return terms
 }
 
 /** Every markup text of a deck: card texts, step notes, prompts, options, option feedback, explanations. */

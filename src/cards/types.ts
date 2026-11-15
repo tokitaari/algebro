@@ -24,10 +24,10 @@ export interface Card {
 
 /**
  * Interactive elements. Each kind has its own component (see
- * src/components/cards/CardWidgetView.tsx); new kinds such as the area model
- * or the balance are added to this union.
+ * src/components/cards/CardWidgetView.tsx); new kinds such as the balance are
+ * added to this union.
  */
-export type CardWidget = TermStepsWidget
+export type CardWidget = TermStepsWidget | AreaModelWidget
 
 /**
  * A transformation shown line by line: the start term, then `= term` per step
@@ -46,6 +46,44 @@ export interface TermStep {
   /** Term in input syntax; multiplication dots in the source are kept when typeset. */
   term: string
   note?: Markup
+}
+
+/**
+ * Area model: the product of two sums drawn as a rectangle whose sides are
+ * split into the summands; every partial area is one product. A negative
+ * summand is drawn as a strip cut off from the end of its side, so e.g.
+ * `(a-b)^2` shows the square `a^2` minus two strips `ab` plus the corner
+ * `b^2` that was cut off twice. Logic and checks: src/cards/areaModel.ts.
+ */
+export interface AreaModelWidget {
+  kind: 'area-model'
+  /** Summands of the first factor along the left edge (one row each), input syntax, e.g. `['x', '3']`. */
+  first: string[]
+  /** Summands of the second factor along the top edge (one column each), e.g. `['x', '-5']`. */
+  second: string[]
+  /**
+   * - `expand`: the partial areas start empty and are revealed one by one, then like terms are combined.
+   * - `factor`: the partial areas are given, the sides start as "?" and are revealed (factoring backwards).
+   * - `explore`: drawn to scale; the learner drags the variable lengths and sees a numeric check.
+   */
+  mode: AreaModelMode
+  /**
+   * Lengths of the variables. Without lengths the model is a sketch (not to
+   * scale); with lengths it is drawn to scale, which needs summands like `3`
+   * or `2x`. Required for `explore`, where `min` and `max` set the drag range.
+   */
+  lengths?: Record<string, AreaLength>
+  /** Accessible name of the calculation below the figure. Default: "Rechnung". */
+  label?: string
+}
+
+export type AreaModelMode = 'expand' | 'factor' | 'explore'
+
+/** Integer length of a variable; `min`/`max` are needed for `explore` only. */
+export interface AreaLength {
+  value: number
+  min?: number
+  max?: number
 }
 
 export type CardQuestion = ChoiceQuestion | TermQuestion

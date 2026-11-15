@@ -1104,6 +1104,223 @@ p .tex,
   font-size: 0.85rem;
 }
 
+/* Area model: partial products as a rectangle (sketch or to scale); figure margins come from .widget */
+.area-svg {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+  font-family: var(--font-sans);
+}
+
+.area-svg text {
+  font-size: 15px;
+  fill: var(--text);
+  pointer-events: none;
+}
+
+.area-svg .area-side-label {
+  fill: var(--accent);
+  font-weight: 600;
+}
+
+.area-svg .area-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--muted);
+}
+
+.area-outer {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.area-cell rect {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.area-cell.is-hidden rect {
+  fill: var(--surface-2);
+  stroke-dasharray: 4 3;
+}
+
+/* A hidden strip lies over other areas: transparent, but still tappable. */
+.area-cell.is-hidden.is-cut rect {
+  fill: transparent;
+}
+
+.area-cell.is-plus rect {
+  fill: var(--accent-soft);
+}
+
+.area-cell.is-minus rect {
+  stroke: var(--danger);
+}
+
+.area-cell.is-back rect {
+  stroke: var(--success);
+}
+
+.area-cell.is-like rect {
+  stroke-width: 3;
+  stroke-dasharray: 7 3;
+}
+
+.area-hatch-bg {
+  fill: var(--danger-bg);
+}
+
+.area-hatch-line {
+  stroke: var(--danger);
+  stroke-width: 1.5;
+}
+
+.area-dot {
+  fill: var(--success);
+}
+
+.area-kept {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+.area-tick {
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.area-hit {
+  fill: transparent;
+}
+
+.area-svg [role='button'] {
+  cursor: pointer;
+  outline: none;
+}
+
+.area-cell[role='button']:hover rect,
+.area-cell[role='button']:focus-visible rect {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+
+.area-side[role='button']:hover .area-hit,
+.area-side[role='button']:focus-visible .area-hit {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+/* Like-term groups: colour plus a marker shape, so colour is never the only hint.
+   Only strokes here: hatched and dotted areas get their fill from a pattern attribute. */
+.area-cell.area-like-0 rect {
+  stroke: var(--pink);
+}
+
+.area-cell.area-like-1 rect {
+  stroke: var(--accent);
+}
+
+.area-cell.area-like-2 rect {
+  stroke: var(--success);
+}
+
+.area-cell.area-like-3 rect {
+  stroke: var(--warning);
+}
+
+.area-svg .area-like-0 .area-mark {
+  fill: var(--pink);
+}
+
+.area-svg .area-like-1 .area-mark {
+  fill: var(--accent);
+}
+
+.area-svg .area-like-2 .area-mark {
+  fill: var(--success);
+}
+
+.area-svg .area-like-3 .area-mark {
+  fill: var(--warning);
+}
+
+.area-group-mark.area-like-0 {
+  color: var(--pink);
+}
+
+.area-group-mark.area-like-1 {
+  color: var(--accent);
+}
+
+.area-group-mark.area-like-2 {
+  color: var(--success);
+}
+
+.area-group-mark.area-like-3 {
+  color: var(--warning);
+}
+
+/* Handles: a large invisible hit circle; only the handle blocks scrolling on touch. */
+.area-handle {
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+
+.area-handle:active {
+  cursor: grabbing;
+}
+
+.area-handle-hit {
+  fill: transparent;
+}
+
+.area-handle-ring {
+  fill: none;
+  stroke: none;
+}
+
+.area-handle:hover .area-handle-ring,
+.area-handle:focus-visible .area-handle-ring {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.area-handle-dot {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.area-caption {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.area-check {
+  margin-top: 0.75rem;
+}
+
+.area-check p {
+  margin: 0.25rem 0;
+}
+
+.area-groups {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
 .question {
   margin-top: 1rem;
   padding-top: 1rem;
