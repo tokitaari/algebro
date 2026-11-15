@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import Breadcrumb from '../components/Breadcrumb'
+import CardDeck from '../components/cards/CardDeck'
 import FormulaList from '../components/FormulaList'
 import Practice from '../components/Practice'
 import RichText from '../components/RichText'
@@ -8,7 +9,11 @@ import { findSubtopic } from '../catalog'
 import { findContent, findFormula } from '../content'
 import NotFound from './NotFound'
 
-/** A subtopic at `/area/topic/subtopic`: explanation, worked examples, formulas and the practice area. */
+/**
+ * A subtopic at `/area/topic/subtopic`: explanation, worked examples, formulas
+ * and the practice area. The explanation is a card deck if the content has
+ * cards, otherwise the former sections with pitfalls.
+ */
 export default function TopicPage() {
   const params = useParams()
   const ref = findSubtopic(params.area, params.topic, params.subtopic)
@@ -25,35 +30,51 @@ export default function TopicPage() {
 
       <section aria-labelledby="erklaerung" className="panel">
         <h2 id="erklaerung">Erklärung</h2>
-        {content.sections.map((section) => (
-          <div key={section.heading} className="explanation-section">
-            <h3>{section.heading}</h3>
-            {section.paragraphs.map((paragraph, i) => (
-              <p key={i}>
-                <RichText text={paragraph} />
+        {content.cards ? (
+          <CardDeck
+            key={id}
+            deck={{ id, cards: content.cards }}
+            finish={
+              <p>
+                <a href="#uebung" className="btn btn-primary">
+                  Weiter zur Übung
+                </a>
               </p>
+            }
+          />
+        ) : (
+          <>
+            {content.sections.map((section) => (
+              <div key={section.heading} className="explanation-section">
+                <h3>{section.heading}</h3>
+                {section.paragraphs.map((paragraph, i) => (
+                  <p key={i}>
+                    <RichText text={paragraph} />
+                  </p>
+                ))}
+                {section.steps && (
+                  <ol className="procedure">
+                    {section.steps.map((step, i) => (
+                      <li key={i}>
+                        <RichText text={step} />
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
             ))}
-            {section.steps && (
-              <ol className="procedure">
-                {section.steps.map((step, i) => (
+            <aside className="pitfalls" aria-labelledby="achtung">
+              <h3 id="achtung">Achtung, typische Fehler</h3>
+              <ul>
+                {content.pitfalls.map((pitfall, i) => (
                   <li key={i}>
-                    <RichText text={step} />
+                    <RichText text={pitfall} />
                   </li>
                 ))}
-              </ol>
-            )}
-          </div>
-        ))}
-        <aside className="pitfalls" aria-labelledby="achtung">
-          <h3 id="achtung">Achtung, typische Fehler</h3>
-          <ul>
-            {content.pitfalls.map((pitfall, i) => (
-              <li key={i}>
-                <RichText text={pitfall} />
-              </li>
-            ))}
-          </ul>
-        </aside>
+              </ul>
+            </aside>
+          </>
+        )}
       </section>
 
       <section aria-labelledby="beispiele" className="panel">

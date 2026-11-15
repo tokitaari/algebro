@@ -15,6 +15,8 @@ import {
   type Session,
 } from '../practice/session'
 import { useTopicProgress } from '../practice/useTopicProgress'
+import Chip from './Chip'
+import InputEcho from './InputEcho'
 import MathInput from './MathInput'
 import SkillPath from './SkillPath'
 import SolutionSteps from './SolutionSteps'
@@ -197,15 +199,6 @@ export default function Practice({ topic, rng = Math.random }: PracticeProps) {
   )
 }
 
-/** One check result as a pill: "✓ äquivalent", "✗ Form nicht ok". The glyph backs up the colour. */
-function Chip({ ok, children }: { ok: boolean; children: string }) {
-  return (
-    <span className={ok ? 'chip chip-ok' : 'chip chip-bad'}>
-      <span aria-hidden="true">{ok ? '✓' : '✗'}</span> {children}
-    </span>
-  )
-}
-
 function FeedbackMessage({ feedback }: { feedback: Feedback }) {
   switch (feedback.kind) {
     case 'correct':
@@ -253,21 +246,6 @@ function FeedbackMessage({ feedback }: { feedback: Feedback }) {
         </div>
       )
   }
-}
-
-/** Shows the input with the faulty part marked (not by colour alone: the marked part is also underlined). */
-function InputEcho({ input, position, length }: { input: string; position: number; length: number }) {
-  const start = Math.min(Math.max(position, 0), input.length)
-  const end = Math.min(start + Math.max(length, 1), input.length)
-  return (
-    <p className="input-echo">
-      <code>
-        {input.slice(0, start)}
-        <mark>{input.slice(start, end) || '␣'}</mark>
-        {input.slice(end)}
-      </code>
-    </p>
-  )
 }
 
 function SeriesSummary({
