@@ -8,7 +8,19 @@ import { Polynomial } from '../polynomial'
 import { toLatex, toText } from '../printer'
 import { createRng } from '../random'
 import { isBinomialPattern } from './helpers'
-import { generateSeries, generateTask, generators, SERIES_LENGTH, TOPIC_IDS, type Task } from './index'
+import {
+  buildBinomialFactorTask,
+  buildBinomialTask,
+  buildCommonFactorTask,
+  buildCommonThenBinomialTask,
+  buildExpandTask,
+  generateSeries,
+  generateTask,
+  generators,
+  SERIES_LENGTH,
+  TOPIC_IDS,
+  type Task,
+} from './index'
 
 const SAMPLES = 400
 
@@ -160,5 +172,44 @@ describe('subtopic specifics', () => {
       const result = checkAnswer(task, toText(first.expr))
       expect(result.kind === 'wrong-form' && result.hint.code, task.key).toBe('factor-further')
     }
+  })
+})
+
+describe('task builders with fixed numbers', () => {
+  const p = (s: string) => toPolynomial(parse(s))
+
+  it('build the same kind of task as the generators', () => {
+    const expand = buildExpandTask(p('x+3'), p('x-5'))
+    expect([expand.topic, expand.variant, expand.key, expand.form]).toEqual([
+      'ausmultiplizieren',
+      'example',
+      '(x + 3)(x - 5)',
+      { kind: 'expanded' },
+    ])
+
+    const binomial = buildBinomialTask('conjugate', { a: p('x'), b: p('5') }, true)
+    expect([binomial.topic, binomial.variant, binomial.key]).toEqual(['binomische-formeln', 'conjugate', '(x - 5)(x + 5)'])
+
+    const common = buildCommonFactorTask(p('3x'), p('2x+3'))
+    expect([common.topic, common.key, toText(common.solution), common.form]).toEqual([
+      'faktorisieren',
+      '6x² + 9x',
+      '3x(2x + 3)',
+      { kind: 'factored', sumFactors: 1 },
+    ])
+
+    const backwards = buildBinomialFactorTask('minus', { a: p('x'), b: p('5') })
+    expect([backwards.variant, backwards.key, toText(backwards.solution)]).toEqual([
+      'example-minus',
+      'x² - 10x + 25',
+      '(x - 5)²',
+    ])
+
+    const combined = buildCommonThenBinomialTask(2, 'plus', { a: p('x'), b: p('3') })
+    expect([combined.variant, combined.key, toText(combined.solution)]).toEqual([
+      'common-then-binomial-plus',
+      '2x² + 12x + 18',
+      '2(x + 3)²',
+    ])
   })
 })

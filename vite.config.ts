@@ -12,6 +12,20 @@ const usePolling = process.env.VITE_USE_POLLING === 'true'
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
   plugins: [react()],
+  build: {
+    rolldownOptions: {
+      output: {
+        // Separate long-lived chunks: KaTeX and React change rarely, so browsers
+        // keep them cached across app updates.
+        codeSplitting: {
+          groups: [
+            { name: 'katex', test: /node_modules[\\/]katex[\\/]/ },
+            { name: 'react', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   server: {
     host: inContainer ? '0.0.0.0' : 'localhost',
     watch: usePolling ? { usePolling: true, interval: 300 } : undefined,

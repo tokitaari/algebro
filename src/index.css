@@ -6,6 +6,9 @@
   --primary: #2f5bea;
   --primary-contrast: #ffffff;
   --border: #dde1ee;
+  --warning: #c27a00;
+  --warning-bg: #fff6e5;
+  --highlight-bg: #e8eeff;
   --radius: 12px;
   color-scheme: light dark;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -21,6 +24,9 @@
     --primary: #7d9bff;
     --primary-contrast: #12141c;
     --border: #2d3242;
+    --warning: #f0a830;
+    --warning-bg: #2a2415;
+    --highlight-bg: #232b48;
   }
 }
 
@@ -186,4 +192,154 @@ h1 {
 .placeholder h2 {
   margin-top: 0;
   font-size: 1.15rem;
+}
+
+.home-formulas {
+  margin-top: 1.5rem;
+}
+
+/* Explanation, examples and formulas on a topic page */
+
+.panel {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+
+.panel h3 {
+  font-size: 1.05rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.explanation-section:first-of-type h3 {
+  margin-top: 0;
+}
+
+.procedure {
+  padding-left: 1.5rem;
+}
+
+.procedure li + li {
+  margin-top: 0.25rem;
+}
+
+.pitfalls {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--warning);
+  background: var(--warning-bg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.pitfalls h3 {
+  margin-top: 0;
+}
+
+.pitfalls ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.example + .example {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.example h3 {
+  margin-top: 0;
+}
+
+.example-instruction {
+  color: var(--muted);
+}
+
+.example-comment {
+  margin-bottom: 0;
+}
+
+/* Worked solution: "= expression" per line, explanation next to it or below on narrow screens */
+
+.solution {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.solution-step {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 0.25rem;
+}
+
+.solution-rel {
+  text-align: center;
+}
+
+.solution-expr {
+  font-size: 1.1rem;
+  /* KaTeX may wrap long steps after + and − on narrow screens. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.1rem 0;
+}
+
+.solution-note {
+  grid-column: 2;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.solution-result .solution-expr {
+  justify-self: start;
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+  background: var(--highlight-bg);
+}
+
+/* Formula lists */
+
+.formula-list {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.formula dt {
+  font-weight: 600;
+}
+
+.formula dd {
+  margin: 0;
+}
+
+.tex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.tex-display .katex-display {
+  margin: 0.4rem 0;
+  text-align: left;
+}
+
+.tex-display .katex-display > .katex {
+  text-align: left;
+}
+
+/* Inline terms in prose never break inside the term. */
+p .tex,
+.procedure .tex,
+.pitfalls .tex {
+  white-space: nowrap;
 }

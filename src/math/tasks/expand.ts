@@ -55,7 +55,14 @@ export function generateExpandTask(rng: Rng): Task {
   const variant = pickWeighted(rng, VARIANTS)
   let pair = factors(variant, rng)
   while (isBinomialPattern(pair[0], pair[1])) pair = factors(variant, rng)
-  const [f, g] = pair
+  return buildExpandTask(pair[0], pair[1], variant)
+}
+
+/**
+ * Task "multiply out f · g" with its worked solution. Used by the generator and
+ * for fixed worked examples in the explanations.
+ */
+export function buildExpandTask(f: Polynomial, g: Polynomial, variant = 'example'): Task {
   const products = f.terms().flatMap((a) => g.terms().map((b) => [a, b] as const))
 
   return makeTask({

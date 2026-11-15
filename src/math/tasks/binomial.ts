@@ -94,15 +94,29 @@ export function generateBinomialTask(rng: Rng): Task {
   const kind = pickWeighted(rng, KINDS)
   const twoVariables = rng() < 0.25
   const parts = coprimeParts(rng, twoVariables)
+  const swapConjugate = rng() < 0.3
+  return buildBinomialTask(kind, parts, swapConjugate, twoVariables ? `${kind}-two-variables` : kind)
+}
+
+/**
+ * Task "expand (A ± B)² or (A + B)(A − B)" with its worked solution. Used by the
+ * generator and for fixed worked examples in the explanations.
+ */
+export function buildBinomialTask(
+  kind: BinomialKind,
+  parts: BinomialParts,
+  swapConjugate = false,
+  variant: string = kind,
+): Task {
   const steps: SolutionStep[] = [
     { expr: substitutedForm(kind, parts), note: FORMULA_NOTES[kind] },
     { expr: ex(expandedValue(kind, parts)), note: 'Potenzen und Produkte ausrechnen.' },
   ]
   return makeTask({
     topic: 'binomische-formeln',
-    variant: twoVariables ? `${kind}-two-variables` : kind,
+    variant,
     instruction: 'Multipliziere mit einer binomischen Formel aus.',
-    prompt: factoredForm(kind, parts, rng() < 0.3),
+    prompt: factoredForm(kind, parts, swapConjugate),
     form: { kind: 'expanded' },
     steps,
   })

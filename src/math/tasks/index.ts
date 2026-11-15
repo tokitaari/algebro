@@ -4,6 +4,9 @@ import { generateExpandTask } from './expand'
 import { generateFactorTask } from './factor'
 import type { Task, TaskGenerator, TopicId } from './types'
 
+export { buildBinomialTask, FORMULA_NOTES, type BinomialKind, type BinomialParts } from './binomial'
+export { buildExpandTask } from './expand'
+export { buildBinomialFactorTask, buildCommonFactorTask, buildCommonThenBinomialTask } from './factor'
 export { TOPIC_IDS, type SolutionStep, type Task, type TaskGenerator, type TopicId } from './types'
 
 export const generators: Readonly<Record<TopicId, TaskGenerator>> = {
