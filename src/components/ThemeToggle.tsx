@@ -1,4 +1,3 @@
-import { useId } from 'react'
 import type { Theme } from '../theme/theme'
 import { useTheme } from '../theme/useTheme'
 
@@ -10,12 +9,8 @@ const OPTIONS: readonly { theme: Theme; label: string }[] = [
 /** "Design: Hell / Dunkel". Two buttons, the active one is marked with aria-pressed. */
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-  const labelId = useId()
   return (
-    <div className="theme-toggle" role="group" aria-labelledby={labelId}>
-      <span id={labelId} className="theme-toggle-label">
-        Design
-      </span>
+    <div className="theme-toggle" role="group" aria-label="Design">
       {OPTIONS.map((option) => (
         <button
           key={option.theme}

@@ -187,17 +187,6 @@ a {
   background: var(--surface-2);
 }
 
-/* The visible label "Design" only fits from small tablets up; the group keeps its accessible name. */
-.theme-toggle-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 .theme-option {
   min-width: 3.5rem;
   min-height: 2.75rem;
@@ -886,23 +875,6 @@ p .tex,
 /* Wider screens */
 
 @media (min-width: 30rem) {
-  .theme-toggle {
-    padding-left: 0.75rem;
-  }
-
-  .theme-toggle-label {
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0 0.4rem 0 0;
-    overflow: visible;
-    clip-path: none;
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    text-transform: lowercase;
-  }
-
   .skill-path {
     --node: 1.5rem;
   }
