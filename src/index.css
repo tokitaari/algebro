@@ -9,6 +9,10 @@
   --warning: #c27a00;
   --warning-bg: #fff6e5;
   --highlight-bg: #e8eeff;
+  --success: #17723a;
+  --success-bg: #e6f6ec;
+  --danger: #b3261e;
+  --danger-bg: #fdecea;
   --radius: 12px;
   color-scheme: light dark;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -27,6 +31,10 @@
     --warning: #f0a830;
     --warning-bg: #2a2415;
     --highlight-bg: #232b48;
+    --success: #6fdc97;
+    --success-bg: #14301f;
+    --danger: #ff9a92;
+    --danger-bg: #3a1a18;
   }
 }
 
@@ -181,19 +189,6 @@ h1 {
   font-size: 0.95rem;
 }
 
-.placeholder {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: var(--surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
-}
-
-.placeholder h2 {
-  margin-top: 0;
-  font-size: 1.15rem;
-}
-
 .home-formulas {
   margin-top: 1.5rem;
 }
@@ -342,4 +337,247 @@ p .tex,
 .procedure .tex,
 .pitfalls .tex {
   white-space: nowrap;
+}
+
+/* Practice area: tasks, input with math keys, feedback, progress */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.btn {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled,
+.math-key:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-contrast);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--surface);
+}
+
+.practice-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.practice-progress p {
+  margin: 0;
+}
+
+.practice-warning {
+  color: var(--danger);
+}
+
+.practice-counter {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.practice-bar {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  accent-color: var(--primary);
+}
+
+.practice-task .example-instruction {
+  margin-bottom: 0;
+}
+
+.practice-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.math-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  /* At least 16 px: iOS zooms into smaller fields. */
+  font: inherit;
+  font-size: 1.15rem;
+}
+
+.math-input:read-only {
+  background: transparent;
+}
+
+.math-keys {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.math-key {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--highlight-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.practice-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.practice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.practice-feedback-region:not(:empty) {
+  margin-top: 0.75rem;
+}
+
+.feedback {
+  padding: 0.6rem 0.75rem;
+  border-left: 4px solid currentColor;
+  border-radius: 0 8px 8px 0;
+}
+
+.feedback p {
+  margin: 0;
+}
+
+.feedback p + p {
+  margin-top: 0.25rem;
+}
+
+p.feedback {
+  margin: 0;
+}
+
+.feedback-correct {
+  color: var(--success);
+  background: var(--success-bg);
+  font-weight: 600;
+}
+
+.feedback-wrong,
+.feedback-invalid {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.feedback-form {
+  color: var(--warning);
+  background: var(--warning-bg);
+}
+
+.feedback-answer {
+  overflow-x: auto;
+}
+
+.input-echo code {
+  overflow-wrap: anywhere;
+}
+
+.input-echo mark {
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline wavy;
+  text-underline-offset: 3px;
+}
+
+.practice-solution {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.practice-solution h3 {
+  margin-top: 0;
+}
+
+.practice-solution .btn {
+  margin-top: 0.5rem;
+}
+
+.practice-summary h3 {
+  margin-top: 0;
+}
+
+.series-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.series-dots li {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.dot-correct {
+  color: var(--success);
+  background: var(--success-bg);
+}
+
+.dot-wrong {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+@media (min-width: 30rem) {
+  .math-keys {
+    grid-template-columns: repeat(auto-fit, minmax(2.75rem, 3.25rem));
+  }
 }
