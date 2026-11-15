@@ -12,7 +12,7 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <Home /> },
       { path: 'formelsatz', element: <FormulaSheet /> },
-      { path: ':slug', element: <TopicPage /> },
+      { path: ':area/:topic/:subtopic', element: <TopicPage /> },
       { path: '*', element: <NotFound /> },
     ],
   },

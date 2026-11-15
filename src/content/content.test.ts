@@ -2,8 +2,8 @@
 import katex from 'katex'
 import { describe, expect, it } from 'vitest'
 import { areEquivalent, checkAnswer, parse, toLatex, toPolynomial, toText, TOPIC_IDS } from '../math'
-import { topics } from '../topics'
-import { allFormulas, findContent, findFormula, formulaGroups, formulaLatex, topicContent } from './index'
+import { allSubtopics, catalog } from '../catalog'
+import { allFormulas, findContent, findFormula, formulaGroupsOf, formulaLatex, formulaSheets, topicContent } from './index'
 import { chainToLatex, splitChain, splitMarkup } from './markup'
 import type { TopicContent } from './types'
 
@@ -74,8 +74,16 @@ describe('formula sheet', () => {
     for (const formula of allFormulas) expect(() => renderStrict(formulaLatex(formula), true)).not.toThrow()
   })
 
+  it('belongs to topics of the catalog', () => {
+    const topicKeys = catalog.flatMap((area) => area.topics.map((topic) => `${area.slug}/${topic.slug}`))
+    for (const key of Object.keys(formulaSheets)) expect(topicKeys).toContain(key)
+    expect(formulaGroupsOf('algebra', 'terme').length).toBeGreaterThan(0)
+    expect(formulaGroupsOf('algebra', 'gibt-es-nicht')).toEqual([])
+    expect(formulaGroupsOf('toString', 'constructor')).toEqual([])
+  })
+
   it('shows the three binomial formulas in school notation', () => {
-    const latex = formulaGroups.find((g) => g.title === 'Binomische Formeln')?.formulas.map(formulaLatex)
+    const latex = formulaGroupsOf('algebra', 'terme').find((g) => g.title === 'Binomische Formeln')?.formulas.map(formulaLatex)
     expect(latex).toEqual([
       '(a + b)^{2} = a^{2} + 2ab + b^{2}',
       '(a - b)^{2} = a^{2} - 2ab + b^{2}',
@@ -86,7 +94,7 @@ describe('formula sheet', () => {
 
 describe('topic content', () => {
   it('exists for exactly the subtopics of the app', () => {
-    expect(Object.keys(topicContent).sort()).toEqual(topics.map((t) => t.slug).sort())
+    expect(Object.keys(topicContent).sort()).toEqual(allSubtopics().map((s) => s.id).sort())
     expect(findContent('gibt-es-nicht')).toBeUndefined()
     expect(findContent('toString')).toBeUndefined()
   })
@@ -146,7 +154,7 @@ describe('topic content', () => {
     })
   })
 
-  it('works through the examples planned for unit 1', () => {
+  it('works through the planned examples', () => {
     const summary = Object.fromEntries(
       TOPIC_IDS.map((topic) => [
         topic,
@@ -154,9 +162,9 @@ describe('topic content', () => {
       ]),
     )
     expect(summary).toEqual({
-      ausmultiplizieren: ['(x + 3)(x - 5) = x² - 2x - 15', '(2a + b)(a - 3b) = 2a² - 5ab - 3b²'],
-      'binomische-formeln': ['(x + 4)² = x² + 8x + 16', '(3x - 2)² = 9x² - 12x + 4', '(x + 5)(x - 5) = x² - 25'],
-      faktorisieren: [
+      'algebra/terme/ausmultiplizieren': ['(x + 3)(x - 5) = x² - 2x - 15', '(2a + b)(a - 3b) = 2a² - 5ab - 3b²'],
+      'algebra/terme/binomische-formeln': ['(x + 4)² = x² + 8x + 16', '(3x - 2)² = 9x² - 12x + 4', '(x + 5)(x - 5) = x² - 25'],
+      'algebra/terme/faktorisieren': [
         '6x² + 9x = 3x(2x + 3)',
         'x² - 10x + 25 = (x - 5)²',
         '4x² - 9 = (2x + 3)(2x - 3)',

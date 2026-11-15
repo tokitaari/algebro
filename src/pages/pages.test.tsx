@@ -2,7 +2,8 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { allFormulas, formulaGroups, topicContent } from '../content'
+import { catalog } from '../catalog'
+import { allFormulas, formulaGroupsOf, topicContent } from '../content'
 import { TOPIC_IDS } from '../math'
 import { routes } from '../routes'
 
@@ -52,29 +53,36 @@ describe('topic page', () => {
   })
 
   it('starts a fresh series when another subtopic is opened', async () => {
-    const { router } = renderAt('/ausmultiplizieren')
+    const { router } = renderAt('/algebra/terme/ausmultiplizieren')
     await userEvent.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
     expect(screen.getByText('Bisher: 0 von 1 richtig.')).toBeInTheDocument()
-    await act(() => router.navigate('/faktorisieren'))
+    await act(() => router.navigate('/algebra/terme/faktorisieren'))
     expect(screen.getByText('Noch keine Aufgabe gelöst.')).toBeInTheDocument()
     expect(screen.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Musterlösung' })).not.toBeInTheDocument()
   })
 
   it('links to the formula sheet', async () => {
-    const { router } = renderAt('/binomische-formeln')
+    const { router } = renderAt('/algebra/terme/binomische-formeln')
     await userEvent.click(screen.getByRole('link', { name: /Formelsatz/ }))
     expect(router.state.location.pathname).toBe('/formelsatz')
   })
 })
 
 describe('formula sheet', () => {
-  it('shows every formula, grouped', () => {
+  it('shows every formula, grouped by topic of the catalog', () => {
     const { container } = renderAt('/formelsatz')
     expect(screen.getByRole('heading', { level: 1, name: 'Formelsatz' })).toBeInTheDocument()
-    for (const group of formulaGroups) {
-      const region = within(screen.getByRole('region', { name: group.title }))
-      expect(region.getAllByRole('term')).toHaveLength(group.formulas.length)
+    expect(screen.getByRole('navigation', { name: 'Pfad' })).toHaveTextContent('start/formelsatz')
+    for (const area of catalog) {
+      for (const topic of area.topics) {
+        const groups = formulaGroupsOf(area.slug, topic.slug)
+        const region = within(screen.getByRole('region', { name: topic.title }))
+        for (const group of groups) {
+          expect(region.getByRole('heading', { level: 3, name: group.title })).toBeInTheDocument()
+        }
+        expect(region.getAllByRole('term')).toHaveLength(groups.reduce((n, g) => n + g.formulas.length, 0))
+      }
     }
     expect(container.querySelectorAll('.katex-display')).toHaveLength(allFormulas.length)
     expect(container.querySelector('.katex-error')).toBeNull()

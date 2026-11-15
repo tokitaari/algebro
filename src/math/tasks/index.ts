@@ -7,13 +7,16 @@ import type { Task, TaskGenerator, TopicId } from './types'
 export { buildBinomialTask, FORMULA_NOTES, type BinomialKind, type BinomialParts } from './binomial'
 export { buildExpandTask } from './expand'
 export { buildBinomialFactorTask, buildCommonFactorTask, buildCommonThenBinomialTask } from './factor'
-export { TOPIC_IDS, type SolutionStep, type Task, type TaskGenerator, type TopicId } from './types'
+export { type SolutionStep, type Task, type TaskGenerator, type TopicId } from './types'
 
-export const generators: Readonly<Record<TopicId, TaskGenerator>> = {
-  ausmultiplizieren: generateExpandTask,
-  'binomische-formeln': generateBinomialTask,
-  faktorisieren: generateFactorTask,
-}
+export const generators = {
+  'algebra/terme/ausmultiplizieren': generateExpandTask,
+  'algebra/terme/binomische-formeln': generateBinomialTask,
+  'algebra/terme/faktorisieren': generateFactorTask,
+} as const satisfies Record<TopicId, TaskGenerator>
+
+/** All subtopics that have a task generator. */
+export const TOPIC_IDS = Object.keys(generators) as (keyof typeof generators)[]
 
 /** Default length of a practice series. */
 export const SERIES_LENGTH = 10
@@ -27,7 +30,8 @@ const MAX_ATTEMPTS = 200
  */
 export function generateTask(topic: TopicId, rng: Rng, exclude: Iterable<string> = []): Task {
   const excluded = new Set(exclude)
-  const generate = generators[topic]
+  if (!Object.hasOwn(generators, topic)) throw new Error(`No task generator for subtopic "${topic}"`)
+  const generate: TaskGenerator = generators[topic as keyof typeof generators]
   let task = generate(rng)
   for (let i = 1; i < MAX_ATTEMPTS && excluded.has(task.key); i++) task = generate(rng)
   return task

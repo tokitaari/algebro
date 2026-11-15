@@ -4,17 +4,17 @@ import { binomischeFormeln } from './binomische-formeln'
 import { faktorisieren } from './faktorisieren'
 import type { TopicContent } from './types'
 
-export { allFormulas, findFormula, formulaGroups, formulaLatex } from './formulas'
+export { allFormulas, findFormula, formulaGroupsOf, formulaLatex, formulaSheets } from './formulas'
 export { chainPieces, chainToLatex, splitChain, splitMarkup, termToLatex, type Segment } from './markup'
 export type { ExplanationSection, Formula, FormulaGroup, Markup, TopicContent, WorkedExample } from './types'
 
-/** Explanations, worked examples and formulas per subtopic of unit 1. */
-export const topicContent: Readonly<Record<TopicId, TopicContent>> = {
-  ausmultiplizieren,
-  'binomische-formeln': binomischeFormeln,
-  faktorisieren,
-}
+/** Explanations, worked examples and formulas per subtopic. */
+export const topicContent = {
+  'algebra/terme/ausmultiplizieren': ausmultiplizieren,
+  'algebra/terme/binomische-formeln': binomischeFormeln,
+  'algebra/terme/faktorisieren': faktorisieren,
+} as const satisfies Record<TopicId, TopicContent>
 
-export function findContent(slug: string): TopicContent | undefined {
-  return Object.hasOwn(topicContent, slug) ? topicContent[slug as TopicId] : undefined
+export function findContent(id: string): TopicContent | undefined {
+  return Object.hasOwn(topicContent, id) ? topicContent[id as keyof typeof topicContent] : undefined
 }

@@ -12,7 +12,7 @@ beforeEach(() => {
   localStorage.clear()
 })
 
-function setup(topic: TopicId = 'ausmultiplizieren') {
+function setup(topic: TopicId = 'algebra/terme/ausmultiplizieren') {
   const tasks = generateSeries(topic, createRng(SEED))
   const rng = createRng(SEED)
   const user = userEvent.setup()
@@ -102,7 +102,7 @@ describe('practice area', () => {
     expect(nodes()[1]).toHaveTextContent('Aufgabe 2: aktuell')
   })
 
-  it.each<TopicId>(['ausmultiplizieren', 'binomische-formeln', 'faktorisieren'])(
+  it.each<TopicId>(['algebra/terme/ausmultiplizieren', 'algebra/terme/binomische-formeln', 'algebra/terme/faktorisieren'])(
     '%s: an equivalent term in the wrong form gets a hint and can be corrected',
     async (topic) => {
       const { tasks, answer, status, input } = setup(topic)
@@ -226,7 +226,7 @@ describe('series and progress', () => {
   }
 
   it('ends after ten tasks with a summary and stores the result', async () => {
-    const s = setup('binomische-formeln')
+    const s = setup('algebra/terme/binomische-formeln')
     await finishSeries(s, (i) => i < 8)
     expect(screen.getByRole('heading', { name: 'Serie geschafft: 8 von 10 richtig' })).toHaveFocus()
     const dots = within(screen.getByRole('list', { name: 'Ergebnis je Aufgabe' })).getAllByRole('listitem')
@@ -234,7 +234,7 @@ describe('series and progress', () => {
     expect(dots[0]).toHaveTextContent('Aufgabe 1: richtig')
     expect(dots[9]).toHaveTextContent('Aufgabe 10: falsch')
     expect(screen.getByText('Bisher: 8 von 10 richtig. Letzte Serie: 8 von 10 richtig.')).toBeInTheDocument()
-    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '').topics['binomische-formeln']).toEqual({
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '').topics['algebra/terme/binomische-formeln']).toEqual({
       answered: 10,
       correct: 8,
       lastSeries: { correct: 8, total: 10 },
@@ -251,25 +251,25 @@ describe('series and progress', () => {
   })
 
   it('keeps the progress after a reload', async () => {
-    const first = setup('faktorisieren')
+    const first = setup('algebra/terme/faktorisieren')
     await first.answer(solution(first.tasks, 0))
     first.view.unmount()
-    render(<Practice topic="faktorisieren" rng={createRng(SEED)} />)
+    render(<Practice topic="algebra/terme/faktorisieren" rng={createRng(SEED)} />)
     expect(screen.getByText('Bisher: 1 von 1 richtig.')).toBeInTheDocument()
     expect(screen.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
   })
 
   it('keeps the subtopics apart', async () => {
-    const first = setup('faktorisieren')
+    const first = setup('algebra/terme/faktorisieren')
     await first.answer(solution(first.tasks, 0))
     first.view.unmount()
-    render(<Practice topic="ausmultiplizieren" rng={createRng(SEED)} />)
+    render(<Practice topic="algebra/terme/ausmultiplizieren" rng={createRng(SEED)} />)
     expect(screen.getByText('Noch keine Aufgabe gelöst.')).toBeInTheDocument()
   })
 
   it('resets after confirmation and starts a new series', async () => {
     const other = { answered: 4, correct: 3, lastSeries: null }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, topics: { faktorisieren: other } }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, topics: { 'algebra/terme/faktorisieren': other } }))
     const s = setup()
     await s.answer(solution(s.tasks, 0))
     await s.user.click(screen.getByRole('button', { name: 'Nächste Aufgabe' }))
@@ -283,7 +283,7 @@ describe('series and progress', () => {
     await s.user.click(screen.getByRole('button', { name: 'Ja, zurücksetzen' }))
     expect(screen.getByText('Noch keine Aufgabe gelöst.')).toBeInTheDocument()
     expect(screen.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
-    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '').topics).toEqual({ faktorisieren: other })
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '').topics).toEqual({ 'algebra/terme/faktorisieren': other })
     expect(screen.queryByRole('button', { name: 'Fortschritt zurücksetzen' })).not.toBeInTheDocument()
   })
 

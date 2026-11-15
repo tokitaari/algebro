@@ -66,7 +66,7 @@ export function buildExpandTask(f: Polynomial, g: Polynomial, variant = 'example
   const products = f.terms().flatMap((a) => g.terms().map((b) => [a, b] as const))
 
   return makeTask({
-    topic: 'ausmultiplizieren',
+    topic: 'algebra/terme/ausmultiplizieren',
     variant,
     instruction: 'Multipliziere aus und fasse zusammen.',
     prompt: mul(ex(f), ex(g)),

@@ -4,24 +4,24 @@ import FormulaList from '../components/FormulaList'
 import Practice from '../components/Practice'
 import RichText from '../components/RichText'
 import WorkedExampleCard from '../components/WorkedExampleCard'
+import { findSubtopic } from '../catalog'
 import { findContent, findFormula } from '../content'
-import type { TopicId } from '../math'
-import { findTopic } from '../topics'
 import NotFound from './NotFound'
 
-/** A subtopic: explanation, worked examples, formulas and the practice area. */
+/** A subtopic at `/area/topic/subtopic`: explanation, worked examples, formulas and the practice area. */
 export default function TopicPage() {
-  const { slug } = useParams()
-  const topic = findTopic(slug)
-  const content = topic && findContent(topic.slug)
+  const params = useParams()
+  const ref = findSubtopic(params.area, params.topic, params.subtopic)
+  const content = ref && findContent(ref.id)
 
-  if (!topic || !content) return <NotFound />
+  if (!ref || !content) return <NotFound />
+  const { id, area, topic, subtopic } = ref
 
   return (
     <>
-      <Breadcrumb current={topic.slug.replaceAll('-', '_')} />
-      <h1>{topic.title}</h1>
-      <p className="lead">{topic.summary}</p>
+      <Breadcrumb trail={[area.slug, topic.slug, subtopic.slug]} />
+      <h1>{subtopic.title}</h1>
+      <p className="lead">{subtopic.summary}</p>
 
       <section aria-labelledby="erklaerung" className="panel">
         <h2 id="erklaerung">Erklärung</h2>
@@ -67,12 +67,12 @@ export default function TopicPage() {
         <h2 id="formeln">Formeln</h2>
         <FormulaList formulas={content.formulaIds.map(findFormula)} />
         <p>
-          <Link to="/formelsatz">Alle Formeln der Einheit im Formelsatz</Link>
+          <Link to="/formelsatz">Alle Formeln im Formelsatz</Link>
         </p>
       </section>
 
-      {/* Keyed by topic: switching subtopics starts a fresh series instead of reusing the old state. */}
-      <Practice key={topic.slug} topic={topic.slug as TopicId} />
+      {/* Keyed by id: switching subtopics starts a fresh series instead of reusing the old state. */}
+      <Practice key={id} topic={id} />
     </>
   )
 }

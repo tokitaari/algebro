@@ -1,0 +1,123 @@
+import type { TopicId } from './math'
+
+/*
+ * The catalog is the single source of truth for the structure of the app:
+ * Bereich (area) → Thema (topic) → Teilthema (subtopic). Routes, start page,
+ * navigation, breadcrumb, footer and formula sheet are all derived from it.
+ * The school year (Klasse) is a property of a topic, not part of the path.
+ *
+ * A subtopic is reachable at `/area/topic/subtopic`; that path without the
+ * leading slash is its `TopicId` (see src/math/tasks/types.ts).
+ */
+
+export interface Subtopic {
+  /** URL segment, lower case with hyphens, e.g. "binomische-formeln". */
+  slug: string
+  title: string
+  summary: string
+}
+
+export interface Topic {
+  slug: string
+  title: string
+  summary: string
+  /** School year the topic belongs to (5 to 13); shown as a badge and used by the filter. */
+  grade: number
+  subtopics: readonly Subtopic[]
+}
+
+export interface Area {
+  slug: string
+  title: string
+  topics: readonly Topic[]
+}
+
+/** Areas follow the content fields (Inhaltsfelder) of the NRW curriculum. */
+export const catalog: readonly Area[] = [
+  {
+    slug: 'algebra',
+    title: 'Algebra',
+    topics: [
+      {
+        slug: 'terme',
+        title: 'Terme und binomische Formeln',
+        summary: 'Klammern auflösen, Formeln durchschauen, Terme zerlegen.',
+        grade: 8,
+        subtopics: [
+          {
+            slug: 'ausmultiplizieren',
+            title: 'Klammern ausmultiplizieren',
+            summary: 'Summe mal Summe: jeden Summanden mit jedem multiplizieren.',
+          },
+          {
+            slug: 'binomische-formeln',
+            title: 'Binomische Formeln',
+            summary: 'Die drei binomischen Formeln erkennen und anwenden.',
+          },
+          {
+            slug: 'faktorisieren',
+            title: 'Faktorisieren',
+            summary: 'Ausklammern und binomische Formeln rückwärts nutzen.',
+          },
+        ],
+      },
+    ],
+  },
+]
+
+/** A subtopic together with the area and topic it belongs to. */
+export interface SubtopicRef {
+  id: TopicId
+  area: Area
+  topic: Topic
+  subtopic: Subtopic
+}
+
+/** All subtopics in catalog order. */
+export function allSubtopics(areas: readonly Area[] = catalog): SubtopicRef[] {
+  return areas.flatMap((area) =>
+    area.topics.flatMap((topic) =>
+      topic.subtopics.map((subtopic) => ({
+        id: `${area.slug}/${topic.slug}/${subtopic.slug}` as const,
+        area,
+        topic,
+        subtopic,
+      })),
+    ),
+  )
+}
+
+/** Looks up a subtopic by its three route segments; `undefined` for anything that is not in the catalog. */
+export function findSubtopic(
+  areaSlug: string | undefined,
+  topicSlug: string | undefined,
+  subtopicSlug: string | undefined,
+  areas: readonly Area[] = catalog,
+): SubtopicRef | undefined {
+  return allSubtopics(areas).find(
+    (ref) => ref.area.slug === areaSlug && ref.topic.slug === topicSlug && ref.subtopic.slug === subtopicSlug,
+  )
+}
+
+/** Route of a subtopic, e.g. "/algebra/terme/faktorisieren". */
+export function subtopicPath(id: TopicId): string {
+  return `/${id}`
+}
+
+/** The school years that occur in the catalog, ascending. */
+export function gradesOf(areas: readonly Area[] = catalog): number[] {
+  const grades = new Set(areas.flatMap((area) => area.topics.map((topic) => topic.grade)))
+  return [...grades].sort((a, b) => a - b)
+}
+
+/** Areas reduced to the topics of one school year; areas without a match are dropped. `null` keeps everything. */
+export function filterByGrade(areas: readonly Area[], grade: number | null): Area[] {
+  if (grade === null) return [...areas]
+  return areas
+    .map((area) => ({ ...area, topics: area.topics.filter((topic) => topic.grade === grade) }))
+    .filter((area) => area.topics.length > 0)
+}
+
+export function gradeLabel(grade: number): string {
+  return `Klasse ${grade}`
+}

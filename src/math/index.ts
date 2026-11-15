@@ -1,10 +1,10 @@
 /**
  * Math core of Lemmio: parsing learner input, canonical polynomials,
- * equivalence and form checks, and task generators for unit 1.
+ * equivalence and form checks, and task generators.
  *
  * Typical use in the UI:
  *
- *   const task = generateTask('binomische-formeln', Math.random, recentKeys)
+ *   const task = generateTask('algebra/terme/binomische-formeln', Math.random, recentKeys)
  *   toLatex(task.prompt)                     // show the exercise
  *   const result = checkAnswer(task, input)  // 'correct' | 'wrong' | 'wrong-form' | 'invalid'
  *   task.steps.map((s) => toLatex(s.expr))   // worked solution

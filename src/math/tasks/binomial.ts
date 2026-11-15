@@ -113,7 +113,7 @@ export function buildBinomialTask(
     { expr: ex(expandedValue(kind, parts)), note: 'Potenzen und Produkte ausrechnen.' },
   ]
   return makeTask({
-    topic: 'binomische-formeln',
+    topic: 'algebra/terme/binomische-formeln',
     variant,
     instruction: 'Multipliziere mit einer binomischen Formel aus.',
     prompt: factoredForm(kind, parts, swapConjugate),
