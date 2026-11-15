@@ -22,7 +22,7 @@ describe('Routing and layout', () => {
     }
   })
 
-  it.each(topics)('shows the placeholder for "$title"', ({ slug, title }) => {
+  it.each(topics)('shows the sections of "$title"', ({ slug, title }) => {
     renderAt(`/${slug}`)
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Erklärung' })).toBeInTheDocument()

@@ -71,7 +71,11 @@ function twoVariableInner(rng: Rng, a: string, b: string): Polynomial {
   }
 }
 
-function commonFactorTask(variant: Variant, factor: Polynomial, inner: Polynomial): Task {
+/**
+ * Task "factor out `factor` from factor · inner" with its worked solution. Used by
+ * the generator and for fixed worked examples in the explanations.
+ */
+export function buildCommonFactorTask(factor: Polynomial, inner: Polynomial, variant = 'example'): Task {
   const g = ex(factor)
   return makeTask({
     topic: 'faktorisieren',
@@ -94,7 +98,16 @@ function commonFactorTask(variant: Variant, factor: Polynomial, inner: Polynomia
   })
 }
 
-function binomialTask(variant: Variant, kind: BinomialKind, parts: BinomialParts, rng: Rng): Task {
+/**
+ * Task "factor A² ± 2AB + B² or A² − B² with a binomial formula backwards".
+ * `variant` is the base name; the kind is appended (e.g. "binomial-plus").
+ */
+export function buildBinomialFactorTask(
+  kind: BinomialKind,
+  parts: BinomialParts,
+  swapConjugate = false,
+  variant = 'example',
+): Task {
   return makeTask({
     topic: 'faktorisieren',
     variant: `${variant}-${kind}`,
@@ -103,7 +116,7 @@ function binomialTask(variant: Variant, kind: BinomialKind, parts: BinomialParts
     form: { kind: 'factored', sumFactors: 2 },
     steps: [
       { expr: substitutedForm(kind, parts), note: BACKWARD_NOTES[kind] },
-      { expr: factoredForm(kind, parts, rng() < 0.3), note: 'Als Produkt schreiben.' },
+      { expr: factoredForm(kind, parts, swapConjugate), note: 'Als Produkt schreiben.' },
     ],
   })
 }
@@ -119,7 +132,14 @@ function commonThenBinomialTask(rng: Rng): Task {
     p = pick(rng, [1, 1, 1, 2, 3])
     q = randInt(rng, 1, 6)
   } while (intGcd(p, q) !== 1)
-  const parts: BinomialParts = { a: mono(p, x), b: mono(q) }
+  return buildCommonThenBinomialTask(k, kind, { a: mono(p, x), b: mono(q) })
+}
+
+/**
+ * Task "factor k · (A² ± 2AB + B²) or k · (A² − B²) completely": first take out
+ * k, then apply a binomial formula backwards.
+ */
+export function buildCommonThenBinomialTask(k: number, kind: BinomialKind, parts: BinomialParts): Task {
   const inner = expandedValue(kind, parts)
   return makeTask({
     topic: 'faktorisieren',
@@ -145,28 +165,30 @@ export function generateFactorTask(rng: Rng): Task {
   switch (variant) {
     case 'common-number': {
       const x = pickVar(rng)
-      return commonFactorTask(variant, mono(randInt(rng, 2, 9)), linearInner(rng, x))
+      return buildCommonFactorTask(mono(randInt(rng, 2, 9)), linearInner(rng, x), variant)
     }
     case 'common-monomial': {
       const x = pickVar(rng)
       const factor = mono(randInt(rng, 1, 6), x, rng() < 0.75 ? 1 : 2)
-      return commonFactorTask(variant, factor, linearInner(rng, x))
+      return buildCommonFactorTask(factor, linearInner(rng, x), variant)
     }
     case 'common-trinomial': {
       const x = pickVar(rng)
       const factor = rng() < 0.5 ? mono(randInt(rng, 2, 6)) : mono(randInt(rng, 1, 4), x)
-      return commonFactorTask(variant, factor, trinomialInner(rng, x))
+      return buildCommonFactorTask(factor, trinomialInner(rng, x), variant)
     }
     case 'common-two-variables': {
       const [a, b] = pickVarPair(rng)
       const k = randInt(rng, 1, 6)
       const factor = rng() < 0.6 ? Polynomial.monomial(k, { [a]: 1 }) : Polynomial.monomial(k, { [a]: 1, [b]: 1 })
-      return commonFactorTask(variant, factor, twoVariableInner(rng, a, b))
+      return buildCommonFactorTask(factor, twoVariableInner(rng, a, b), variant)
     }
     case 'binomial':
-      return binomialTask(variant, pick(rng, KINDS), coprimeParts(rng, false), rng)
-    case 'binomial-two-variables':
-      return binomialTask(variant, pick(rng, KINDS), coprimeParts(rng, true), rng)
+    case 'binomial-two-variables': {
+      const kind = pick(rng, KINDS)
+      const parts = coprimeParts(rng, variant === 'binomial-two-variables')
+      return buildBinomialFactorTask(kind, parts, rng() < 0.3, variant)
+    }
     case 'common-then-binomial':
       return commonThenBinomialTask(rng)
   }

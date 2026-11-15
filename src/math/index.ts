@@ -8,6 +8,9 @@
  *   toLatex(task.prompt)                     // show the exercise
  *   const result = checkAnswer(task, input)  // 'correct' | 'wrong' | 'wrong-form' | 'invalid'
  *   task.steps.map((s) => toLatex(s.expr))   // worked solution
+ *
+ * The build*Task functions create the same tasks with fixed numbers, e.g. for
+ * worked examples in the explanations.
  */
 export * as build from './ast'
 export type { Expr, Span } from './ast'
@@ -21,11 +24,19 @@ export { toLatex, toText } from './printer'
 export { createRng, type Rng } from './random'
 export { Rational } from './rational'
 export {
+  buildBinomialFactorTask,
+  buildBinomialTask,
+  buildCommonFactorTask,
+  buildCommonThenBinomialTask,
+  buildExpandTask,
+  FORMULA_NOTES,
   generateSeries,
   generateTask,
   generators,
   SERIES_LENGTH,
   TOPIC_IDS,
+  type BinomialKind,
+  type BinomialParts,
   type SolutionStep,
   type Task,
   type TaskGenerator,

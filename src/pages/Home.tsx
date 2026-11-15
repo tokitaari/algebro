@@ -24,6 +24,9 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <p className="home-formulas">
+        Alle Formeln auf einen Blick: <Link to="/formelsatz">Formelsatz</Link>
+      </p>
     </>
   )
 }
