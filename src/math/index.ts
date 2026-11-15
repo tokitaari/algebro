@@ -1,0 +1,33 @@
+/**
+ * Math core of Algebro: parsing learner input, canonical polynomials,
+ * equivalence and form checks, and task generators for unit 1.
+ *
+ * Typical use in the UI:
+ *
+ *   const task = generateTask('binomische-formeln', Math.random, recentKeys)
+ *   toLatex(task.prompt)                     // show the exercise
+ *   const result = checkAnswer(task, input)  // 'correct' | 'wrong' | 'wrong-form' | 'invalid'
+ *   task.steps.map((s) => toLatex(s.expr))   // worked solution
+ */
+export * as build from './ast'
+export type { Expr, Span } from './ast'
+export { checkAnswer, readTerm, type AnswerKey, type CheckResult, type ReadResult } from './check'
+export { TermError, type TermErrorCode, type TermErrorInfo } from './errors'
+export { checkForm, isExpanded, type FormHint, type FormHintCode, type FormRequirement } from './form'
+export { areEquivalent, polynomialToExpr, toPolynomial } from './normalize'
+export { MAX_EXPONENT, MAX_INPUT_LENGTH, parse } from './parser'
+export { Polynomial } from './polynomial'
+export { toLatex, toText } from './printer'
+export { createRng, type Rng } from './random'
+export { Rational } from './rational'
+export {
+  generateSeries,
+  generateTask,
+  generators,
+  SERIES_LENGTH,
+  TOPIC_IDS,
+  type SolutionStep,
+  type Task,
+  type TaskGenerator,
+  type TopicId,
+} from './tasks'
