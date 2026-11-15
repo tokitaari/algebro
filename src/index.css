@@ -177,7 +177,8 @@ a {
   letter-spacing: 0;
 }
 
-.theme-toggle {
+.theme-toggle,
+.filter {
   display: inline-flex;
   align-items: center;
   gap: 0.125rem;
@@ -187,7 +188,8 @@ a {
   background: var(--surface-2);
 }
 
-.theme-option {
+.theme-option,
+.filter-option {
   min-width: 3.5rem;
   min-height: 2.75rem;
   padding: 0 0.9rem;
@@ -200,11 +202,13 @@ a {
   cursor: pointer;
 }
 
-.theme-option:hover {
+.theme-option:hover,
+.filter-option:hover {
   color: var(--text);
 }
 
-.theme-option[aria-pressed='true'] {
+.theme-option[aria-pressed='true'],
+.filter-option[aria-pressed='true'] {
   background: var(--accent);
   color: var(--accent-contrast);
   font-weight: 700;
@@ -303,7 +307,54 @@ h1 {
   font-weight: 600;
 }
 
-/* Start page: subtopic cards */
+/* Start page: class filter, areas, topics with class badge, subtopic cards */
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 1rem;
+}
+
+.catalog-area > h2 {
+  margin: 2rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+}
+
+.catalog-topic {
+  margin-top: 1rem;
+}
+
+.topic-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+}
+
+.topic-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.badge {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.topic-summary {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
 
 .card-list {
   list-style: none;
@@ -897,6 +948,7 @@ p .tex,
   .math-key,
   .math-input,
   .theme-option,
+  .filter-option,
   .topic-nav a {
     transition:
       border-color 0.15s,

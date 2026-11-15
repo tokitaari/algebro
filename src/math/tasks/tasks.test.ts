@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
-import { topics } from '../../topics'
+import { allSubtopics } from '../../catalog'
 import { checkAnswer } from '../check'
 import { polynomialToExpr, toPolynomial } from '../normalize'
 import { parse } from '../parser'
@@ -31,7 +31,7 @@ function sample(topic: (typeof TOPIC_IDS)[number], seed: number, count = SAMPLES
 
 describe('task generators', () => {
   it('cover exactly the subtopics of the app', () => {
-    expect([...TOPIC_IDS].sort()).toEqual(topics.map((t) => t.slug).sort())
+    expect([...TOPIC_IDS].sort()).toEqual(allSubtopics().map((s) => s.id).sort())
   })
 
   describe.each(TOPIC_IDS)('%s', (topic) => {
@@ -105,16 +105,16 @@ describe('task generators', () => {
 
   it('avoids excluded keys', () => {
     const rng = createRng(5)
-    const first = generateTask('binomische-formeln', rng)
+    const first = generateTask('algebra/terme/binomische-formeln', rng)
     for (let i = 0; i < 100; i++) {
-      expect(generateTask('binomische-formeln', rng, [first.key]).key).not.toBe(first.key)
+      expect(generateTask('algebra/terme/binomische-formeln', rng, [first.key]).key).not.toBe(first.key)
     }
   })
 })
 
 describe('subtopic specifics', () => {
   it('multiplying out never uses binomial-formula products', () => {
-    for (const task of sample('ausmultiplizieren', 1)) {
+    for (const task of sample('algebra/terme/ausmultiplizieren', 1)) {
       expect(task.prompt.type).toBe('mul')
       if (task.prompt.type !== 'mul') continue
       const [f, g] = task.prompt.factors.map(toPolynomial)
@@ -124,12 +124,12 @@ describe('subtopic specifics', () => {
   })
 
   it('binomial tasks cover all three formulas', () => {
-    const kinds = new Set(sample('binomische-formeln', 2).map((t) => t.variant.split('-')[0]))
+    const kinds = new Set(sample('algebra/terme/binomische-formeln', 2).map((t) => t.variant.split('-')[0]))
     expect(kinds).toEqual(new Set(['plus', 'minus', 'conjugate']))
   })
 
   it('binomial tasks reject the classic mistake (a + b)² = a² + b²', () => {
-    for (const task of sample('binomische-formeln', 3).filter((t) => t.variant.startsWith('plus'))) {
+    for (const task of sample('algebra/terme/binomische-formeln', 3).filter((t) => t.variant.startsWith('plus'))) {
       const terms = task.expected.terms()
       const first = terms[0]
       const last = terms[terms.length - 1]
@@ -140,7 +140,7 @@ describe('subtopic specifics', () => {
   })
 
   it('factoring tasks come in expanded form and require complete factorisation', () => {
-    for (const task of sample('faktorisieren', 4)) {
+    for (const task of sample('algebra/terme/faktorisieren', 4)) {
       expect(task.prompt.type, task.key).toBe('add')
       const commonOnly = task.variant.startsWith('common-') && !task.variant.startsWith('common-then')
       expect(task.form, task.variant).toEqual({ kind: 'factored', sumFactors: commonOnly ? 1 : 2 })
@@ -148,7 +148,7 @@ describe('subtopic specifics', () => {
   })
 
   it('factoring rejects a partially extracted common factor', () => {
-    const tasks = sample('faktorisieren', 5).filter((t) => t.variant === 'common-monomial')
+    const tasks = sample('algebra/terme/faktorisieren', 5).filter((t) => t.variant === 'common-monomial')
     let checked = 0
     for (const task of tasks) {
       // E.g. 6x² + 9x: content 3x; taking out only 3 gives 3(2x² + 3x).
@@ -164,7 +164,7 @@ describe('subtopic specifics', () => {
   })
 
   it('factoring with a binomial formula asks to factor further after only taking out k', () => {
-    const tasks = sample('faktorisieren', 6).filter((t) => t.variant.startsWith('common-then-binomial'))
+    const tasks = sample('algebra/terme/faktorisieren', 6).filter((t) => t.variant.startsWith('common-then-binomial'))
     expect(tasks.length).toBeGreaterThan(10)
     for (const task of tasks) {
       const first = task.steps[0]
@@ -181,18 +181,18 @@ describe('task builders with fixed numbers', () => {
   it('build the same kind of task as the generators', () => {
     const expand = buildExpandTask(p('x+3'), p('x-5'))
     expect([expand.topic, expand.variant, expand.key, expand.form]).toEqual([
-      'ausmultiplizieren',
+      'algebra/terme/ausmultiplizieren',
       'example',
       '(x + 3)(x - 5)',
       { kind: 'expanded' },
     ])
 
     const binomial = buildBinomialTask('conjugate', { a: p('x'), b: p('5') }, true)
-    expect([binomial.topic, binomial.variant, binomial.key]).toEqual(['binomische-formeln', 'conjugate', '(x - 5)(x + 5)'])
+    expect([binomial.topic, binomial.variant, binomial.key]).toEqual(['algebra/terme/binomische-formeln', 'conjugate', '(x - 5)(x + 5)'])
 
     const common = buildCommonFactorTask(p('3x'), p('2x+3'))
     expect([common.topic, common.key, toText(common.solution), common.form]).toEqual([
-      'faktorisieren',
+      'algebra/terme/faktorisieren',
       '6x² + 9x',
       '3x(2x + 3)',
       { kind: 'factored', sumFactors: 1 },

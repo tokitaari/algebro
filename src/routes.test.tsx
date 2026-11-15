@@ -2,8 +2,8 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
+import { allSubtopics, subtopicPath } from './catalog'
 import { routes } from './routes'
-import { topics } from './topics'
 
 function renderAt(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] })
@@ -11,43 +11,85 @@ function renderAt(path: string) {
   return router
 }
 
+const subtopics = allSubtopics()
+
 describe('Routing and layout', () => {
-  it('shows all three subtopics on the home page', () => {
+  it('shows all subtopics on the home page', () => {
     renderAt('/')
     expect(screen.getByRole('heading', { level: 1, name: /Willkommen bei Lemmio/ })).toBeInTheDocument()
-    expect(topics).toHaveLength(3)
+    expect(subtopics).toHaveLength(3)
     const main = within(screen.getByRole('main'))
-    for (const topic of topics) {
-      expect(main.getByRole('link', { name: new RegExp(topic.title) })).toBeInTheDocument()
+    for (const { subtopic } of subtopics) {
+      expect(main.getByRole('link', { name: new RegExp(subtopic.title) })).toBeInTheDocument()
     }
   })
 
-  it.each(topics)('shows the sections of "$title"', ({ slug, title }) => {
-    renderAt(`/${slug}`)
-    expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
+  it.each(subtopics.map((s) => [s.id, s] as const))('shows the sections of "%s"', (id, { subtopic }) => {
+    expect(subtopicPath(id)).toBe(`/${id}`)
+    renderAt(`/${id}`)
+    expect(screen.getByRole('heading', { level: 1, name: subtopic.title })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Erklärung' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Übung' })).toBeInTheDocument()
+  })
+
+  it('serves the subtopics under area/topic/subtopic', () => {
+    expect(subtopics.map((s) => subtopicPath(s.id))).toEqual([
+      '/algebra/terme/ausmultiplizieren',
+      '/algebra/terme/binomische-formeln',
+      '/algebra/terme/faktorisieren',
+    ])
   })
 
   it('navigates from the home page to a subtopic on click', async () => {
     const router = renderAt('/')
     await userEvent.click(within(screen.getByRole('main')).getByRole('link', { name: /Faktorisieren/ }))
-    expect(router.state.location.pathname).toBe('/faktorisieren')
+    expect(router.state.location.pathname).toBe('/algebra/terme/faktorisieren')
   })
 
   it('shows the navigation with all subtopics in the layout', () => {
     renderAt('/')
     const nav = within(screen.getByRole('navigation', { name: 'Teilthemen' }))
-    expect(nav.getAllByRole('link')).toHaveLength(topics.length)
+    expect(nav.getAllByRole('link')).toHaveLength(subtopics.length)
+  })
+
+  it('shows the path from the catalog above a subtopic', () => {
+    renderAt('/algebra/terme/binomische-formeln')
+    const crumbs = screen.getByRole('navigation', { name: 'Pfad' })
+    expect(crumbs).toHaveTextContent('start/algebra/terme/binomische_formeln')
+    expect(within(crumbs).getByRole('link', { name: 'start' })).toHaveAttribute('href', '/')
+    expect(within(crumbs).getByText('binomische_formeln')).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('names the areas of the catalog in the footer', () => {
+    renderAt('/')
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('Lemmio · Algebra · Dein Fortschritt bleibt in deinem Browser.')
+  })
+
+  it.each(['/', '/formelsatz', '/algebra/terme/ausmultiplizieren'])('does not mention "Einheit" on %s', (path) => {
+    renderAt(path)
+    expect(document.body).not.toHaveTextContent(/einheit/i)
   })
 
   it('shows "not found" for an unknown subtopic', () => {
-    renderAt('/gibt-es-nicht')
+    renderAt('/algebra/terme/gibt-es-nicht')
+    expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
+  })
+
+  it.each(['/algebra/gibt-es-nicht/faktorisieren', '/gibt-es-nicht/terme/faktorisieren'])(
+    'shows "not found" for the wrong area or topic in %s',
+    (path) => {
+      renderAt(path)
+      expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
+    },
+  )
+
+  it('has no redirects for the former flat routes', () => {
+    renderAt('/faktorisieren')
     expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
   })
 
   it('shows "not found" for nested unknown paths', () => {
-    renderAt('/a/b/c')
+    renderAt('/a/b/c/d')
     expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
   })
 })

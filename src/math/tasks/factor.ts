@@ -78,7 +78,7 @@ function twoVariableInner(rng: Rng, a: string, b: string): Polynomial {
 export function buildCommonFactorTask(factor: Polynomial, inner: Polynomial, variant = 'example'): Task {
   const g = ex(factor)
   return makeTask({
-    topic: 'faktorisieren',
+    topic: 'algebra/terme/faktorisieren',
     variant,
     instruction: 'Klammere den größten gemeinsamen Faktor aus.',
     prompt: ex(factor.mul(inner)),
@@ -109,7 +109,7 @@ export function buildBinomialFactorTask(
   variant = 'example',
 ): Task {
   return makeTask({
-    topic: 'faktorisieren',
+    topic: 'algebra/terme/faktorisieren',
     variant: `${variant}-${kind}`,
     instruction: 'Faktorisiere mit einer binomischen Formel.',
     prompt: ex(expandedValue(kind, parts)),
@@ -142,7 +142,7 @@ function commonThenBinomialTask(rng: Rng): Task {
 export function buildCommonThenBinomialTask(k: number, kind: BinomialKind, parts: BinomialParts): Task {
   const inner = expandedValue(kind, parts)
   return makeTask({
-    topic: 'faktorisieren',
+    topic: 'algebra/terme/faktorisieren',
     variant: `common-then-binomial-${kind}`,
     instruction: 'Faktorisiere so weit wie möglich.',
     prompt: ex(inner.scale(k)),

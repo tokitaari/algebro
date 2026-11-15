@@ -2,10 +2,14 @@ import type { Expr } from '../ast'
 import type { AnswerKey } from '../check'
 import type { Rng } from '../random'
 
-/** Subtopics of unit 1; identical to the route slugs in src/topics.ts. */
-export type TopicId = 'ausmultiplizieren' | 'binomische-formeln' | 'faktorisieren'
-
-export const TOPIC_IDS: readonly TopicId[] = ['ausmultiplizieren', 'binomische-formeln', 'faktorisieren']
+/**
+ * Identifies a subtopic (Teilthema) as `area/topic/subtopic`, e.g.
+ * "algebra/terme/ausmultiplizieren". It is the route path without the leading
+ * slash and the key for task generators, contents and stored progress.
+ * Which ids exist is decided by the generator registry (`TOPIC_IDS`) and the
+ * catalog (src/catalog.ts), not by this type.
+ */
+export type TopicId = `${string}/${string}/${string}`
 
 /** One line of a worked solution: `previous = expr`, optionally explained by `note` (German). */
 export interface SolutionStep {

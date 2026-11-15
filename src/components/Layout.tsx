@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { topics } from '../topics'
+import { allSubtopics, catalog, subtopicPath } from '../catalog'
 import ThemeToggle from './ThemeToggle'
 
 export default function Layout() {
@@ -16,9 +16,9 @@ export default function Layout() {
           <ThemeToggle />
         </div>
         <nav aria-label="Teilthemen" className="topic-nav">
-          {topics.map((topic) => (
-            <NavLink key={topic.slug} to={`/${topic.slug}`}>
-              {topic.title}
+          {allSubtopics().map(({ id, subtopic }) => (
+            <NavLink key={id} to={subtopicPath(id)}>
+              {subtopic.title}
             </NavLink>
           ))}
         </nav>
@@ -27,7 +27,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="app-footer">
-        Lemmio · Einheit 1: Terme und binomische Formeln · Dein Fortschritt bleibt in deinem Browser.
+        Lemmio · {catalog.map((area) => area.title).join(' · ')} · Dein Fortschritt bleibt in deinem Browser.
       </footer>
     </div>
   )

@@ -13,7 +13,7 @@ import {
   taskVariables,
 } from './session'
 
-function series(topic: (typeof TOPIC_IDS)[number] = 'ausmultiplizieren', seed = 7): Task[] {
+function series(topic: (typeof TOPIC_IDS)[number] = 'algebra/terme/ausmultiplizieren', seed = 7): Task[] {
   return generateSeries(topic, createRng(seed))
 }
 
@@ -87,7 +87,7 @@ describe('nextTask', () => {
   })
 
   it('ends the series after the last task', () => {
-    let s = createSession(series('faktorisieren'))
+    let s = createSession(series('algebra/terme/faktorisieren'))
     for (const task of s.tasks) s = nextTask(submitAnswer(s, solutionOf(task)))
     expect(isSeriesOver(s)).toBe(true)
     expect(currentTask(s)).toBeUndefined()
