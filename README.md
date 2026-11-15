@@ -19,7 +19,7 @@ npm run preview   # Build lokal ansehen
 
 ## Dev-Container
 
-Alles läuft in einem Container mit Node 22; `node_modules` liegt in einem Docker-Volume.
+Alles läuft in einem Container mit Node 22; `node_modules` liegt in einem Docker-Volume. Auf dem Host wird weder Node noch npm benötigt, nur Docker.
 
 **Mit VS Code:** Ordner öffnen und „Reopen in Container“ wählen. Danach im Terminal `npm run dev` starten, die Seite ist unter http://localhost:5173 erreichbar.
 
@@ -30,6 +30,7 @@ scripts/dev.sh dev      # Container starten und Dev-Server auf http://localhost:
 scripts/dev.sh check    # Lint, Tests und Build wie in der CI
 scripts/dev.sh preview  # Produktions-Build auf http://localhost:4173
 scripts/dev.sh shell    # Shell im Container
+scripts/dev.sh rebuild  # Image mit der neuesten Node-22-Version neu bauen
 scripts/dev.sh down     # stoppen
 scripts/dev.sh reset    # stoppen und node_modules-Volume löschen
 ```

@@ -24,6 +24,7 @@ Commands:
   test     Run tests in watch mode
   shell    Open a shell in the container
   logs     Follow the container logs
+  rebuild  Rebuild the image with the latest Node 22 base image and recreate the container
   down     Stop the container (the node_modules volume is kept)
   reset    Stop the container and delete the node_modules volume
 
@@ -33,10 +34,18 @@ EOF
 
 run() { "${COMPOSE[@]}" exec "$SERVICE" "$@"; }
 
+# Start the container and install dependencies inside it. Nothing is installed
+# on the host. "npm ci" only runs when package-lock.json has changed.
 ensure_up() {
   "${COMPOSE[@]}" up -d --build
-  run sudo chown node:node node_modules
-  run npm ci
+  # The volume mount point is created by Docker as root.
+  "${COMPOSE[@]}" exec -u root "$SERVICE" chown node:node /workspaces/algebro/node_modules
+  run bash -c '
+    hash=$(sha256sum package-lock.json | cut -d" " -f1)
+    if [[ "$(cat node_modules/.lock-hash 2>/dev/null)" != "$hash" ]]; then
+      npm ci && echo "$hash" > node_modules/.lock-hash
+    fi
+  '
 }
 
 cmd="${1:-}"
@@ -70,6 +79,10 @@ case "$cmd" in
     ;;
   logs)
     "${COMPOSE[@]}" logs -f "$SERVICE"
+    ;;
+  rebuild)
+    "${COMPOSE[@]}" build --pull
+    "${COMPOSE[@]}" up -d --force-recreate
     ;;
   down)
     "${COMPOSE[@]}" down

@@ -12,6 +12,9 @@ services:
     environment:
       # Read in vite.config.ts: bind to 0.0.0.0 so the host can reach the server.
       DEV_CONTAINER: "true"
+      # Less npm noise in the container output.
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+      NPM_CONFIG_FUND: "false"
       # Set to "true" if the repo lives on a Windows drive (e.g. /mnt/d/... under
       # WSL2), because file change events do not arrive there.
       VITE_USE_POLLING: ${VITE_USE_POLLING:-false}
