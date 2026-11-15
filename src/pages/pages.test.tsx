@@ -1,7 +1,7 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { allFormulas, formulaGroups, topicContent } from '../content'
 import { TOPIC_IDS } from '../math'
 import { routes } from '../routes'
@@ -11,6 +11,10 @@ function renderAt(path: string) {
   const { container } = render(<RouterProvider router={router} />)
   return { router, container }
 }
+
+beforeEach(() => {
+  localStorage.clear()
+})
 
 describe('topic page', () => {
   it.each(TOPIC_IDS)('%s shows explanation, worked examples and formulas', (topic) => {
@@ -37,6 +41,24 @@ describe('topic page', () => {
     expect(container.querySelectorAll('.katex').length).toBeGreaterThan(10)
     expect(container.querySelectorAll('math').length).toBeGreaterThan(10)
     expect(container.querySelector('.katex-error')).toBeNull()
+  })
+
+  it.each(TOPIC_IDS)('%s has a practice area with a task and an input', (topic) => {
+    renderAt(`/${topic}`)
+    const practice = within(screen.getByRole('region', { name: 'Übung' }))
+    expect(practice.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
+    expect(practice.getByLabelText('Deine Antwort')).toBeInTheDocument()
+    expect(practice.getByRole('button', { name: 'Prüfen' })).toBeInTheDocument()
+  })
+
+  it('starts a fresh series when another subtopic is opened', async () => {
+    const { router } = renderAt('/ausmultiplizieren')
+    await userEvent.click(screen.getByRole('button', { name: 'Lösung anzeigen' }))
+    expect(screen.getByText('Bisher: 0 von 1 richtig.')).toBeInTheDocument()
+    await act(() => router.navigate('/faktorisieren'))
+    expect(screen.getByText('Noch keine Aufgabe gelöst.')).toBeInTheDocument()
+    expect(screen.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Musterlösung' })).not.toBeInTheDocument()
   })
 
   it('links to the formula sheet', async () => {

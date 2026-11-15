@@ -1,15 +1,14 @@
 import { Link, useParams } from 'react-router-dom'
 import FormulaList from '../components/FormulaList'
+import Practice from '../components/Practice'
 import RichText from '../components/RichText'
 import WorkedExampleCard from '../components/WorkedExampleCard'
 import { findContent, findFormula } from '../content'
+import type { TopicId } from '../math'
 import { findTopic } from '../topics'
 import NotFound from './NotFound'
 
-/**
- * A subtopic: explanation, worked examples and formulas. The practice area
- * (sub-task 4) will replace the placeholder in the "Übung" section.
- */
+/** A subtopic: explanation, worked examples, formulas and the practice area. */
 export default function TopicPage() {
   const { slug } = useParams()
   const topic = findTopic(slug)
@@ -73,10 +72,8 @@ export default function TopicPage() {
         </p>
       </section>
 
-      <section aria-labelledby="uebung" className="placeholder">
-        <h2 id="uebung">Übung</h2>
-        <p>Folgt: generierte Aufgaben mit Rückmeldung und Fortschritt.</p>
-      </section>
+      {/* Keyed by topic: switching subtopics starts a fresh series instead of reusing the old state. */}
+      <Practice key={topic.slug} topic={topic.slug as TopicId} />
     </>
   )
 }
