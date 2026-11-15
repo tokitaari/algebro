@@ -14,7 +14,7 @@ function renderAt(path: string) {
 describe('Routing and layout', () => {
   it('shows all three subtopics on the home page', () => {
     renderAt('/')
-    expect(screen.getByRole('heading', { level: 1, name: /Willkommen bei Algebro/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: /Willkommen bei Lemmio/ })).toBeInTheDocument()
     expect(topics).toHaveLength(3)
     const main = within(screen.getByRole('main'))
     for (const topic of topics) {

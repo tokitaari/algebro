@@ -4,7 +4,7 @@ import { topics } from '../topics'
 export default function Home() {
   return (
     <>
-      <h1>Willkommen bei Algebro</h1>
+      <h1>Willkommen bei Lemmio</h1>
       <p className="lead">
         Hier übst du Algebra Schritt für Schritt. Einheit 1: Terme und binomische Formeln.
         Wähle ein Thema:

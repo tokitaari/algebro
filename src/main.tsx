@@ -6,7 +6,7 @@ import { routes } from './routes'
 import 'katex/dist/katex.min.css'
 import './index.css'
 
-// BASE_URL is provided by Vite (e.g. "/algebro/" on GitHub Pages).
+// BASE_URL is provided by Vite (e.g. "/lemmio/" on GitHub Pages).
 const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL })
 
 createRoot(document.getElementById('root')!).render(

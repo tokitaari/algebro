@@ -7,7 +7,7 @@ import { defineConfig } from 'vitest/config'
 const inContainer = process.env.DEV_CONTAINER === 'true'
 const usePolling = process.env.VITE_USE_POLLING === 'true'
 
-// BASE_PATH is set in CI for GitHub Pages (e.g. "/algebro/").
+// BASE_PATH is set in CI for GitHub Pages (e.g. "/lemmio/").
 // Locally and in tests, "/" is used.
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',

@@ -10,7 +10,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Create the node_modules mount point with the right owner up front.
-RUN mkdir -p /workspaces/algebro/node_modules \
-    && chown -R node:node /workspaces/algebro
+RUN mkdir -p /workspaces/lemmio/node_modules \
+    && chown -R node:node /workspaces/lemmio
 
 USER node

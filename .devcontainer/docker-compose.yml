@@ -1,4 +1,4 @@
-name: algebro
+name: lemmio
 
 services:
   app:
@@ -8,7 +8,7 @@ services:
     # The container stays up; Vite is started on demand via "scripts/dev.sh dev"
     # or from the VS Code terminal.
     command: sleep infinity
-    working_dir: /workspaces/algebro
+    working_dir: /workspaces/lemmio
     environment:
       # Read in vite.config.ts: bind to 0.0.0.0 so the host can reach the server.
       DEV_CONTAINER: "true"
@@ -23,9 +23,9 @@ services:
       - "${PREVIEW_PORT:-4173}:4173"  # npm run preview
     volumes:
       # Project folder from the host
-      - ..:/workspaces/algebro:cached
+      - ..:/workspaces/lemmio:cached
       # node_modules in a volume: faster and no Windows/Linux conflicts
-      - node_modules:/workspaces/algebro/node_modules
+      - node_modules:/workspaces/lemmio/node_modules
 
 volumes:
   node_modules:
