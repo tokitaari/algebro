@@ -63,6 +63,14 @@ function onActivate(action: () => void) {
   }
 }
 
+/**
+ * A partial area (`[data-cell]`) or side (`[data-side]`) of the drawing. They
+ * are looked up in effects instead of collecting refs while drawing.
+ */
+function partOf(svg: SVGSVGElement | null, selector: string): SVGGElement | null {
+  return svg?.querySelector<SVGGElement>(selector) ?? null
+}
+
 function signed(n: number): string {
   return String(n).replace('-', '−')
 }
@@ -96,8 +104,6 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
 
   const ids = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const svgRef = useRef<SVGSVGElement>(null)
-  const cellRefs = useRef<(SVGGElement | null)[]>([])
-  const sideRefs = useRef<(SVGGElement | null)[]>([])
   const lineRefs = useRef<(HTMLLIElement | null)[]>([])
   const stepRef = useRef<HTMLButtonElement>(null)
   const pendingFocus = useRef<Focus | null>(null)
@@ -111,7 +117,9 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
   useEffect(() => {
     const before = previousReveal.current
     reveal.cells.forEach((shown, i) => {
-      if (shown && !before.cells[i]) void animate(cellRefs.current[i], ENTER.fade, { duration: DURATION.medium, reducedMotion })
+      if (shown && !before.cells[i]) {
+        void animate(partOf(svgRef.current, `[data-cell="${i}"]`), ENTER.fade, { duration: DURATION.medium, reducedMotion })
+      }
     })
     previousReveal.current = reveal
   }, [reveal, reducedMotion])
@@ -127,8 +135,8 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
   useEffect(() => {
     const target = pendingFocus.current
     pendingFocus.current = null
-    if (target?.kind === 'cell') cellRefs.current[target.index]?.focus()
-    else if (target?.kind === 'side') sideRefs.current[target.side]?.focus()
+    if (target?.kind === 'cell') partOf(svgRef.current, `[data-cell="${target.index}"]`)?.focus()
+    else if (target?.kind === 'side') partOf(svgRef.current, `[data-side="${target.side}"]`)?.focus()
     else if (target?.kind === 'step') stepRef.current?.focus()
   }, [reveal])
 
@@ -307,9 +315,7 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
     return (
       <g
         key={cell.index}
-        ref={(el) => {
-          cellRefs.current[cell.index] = el
-        }}
+        data-cell={cell.index}
         className={className}
         role={interactive ? 'button' : 'img'}
         tabIndex={interactive ? 0 : undefined}
@@ -400,9 +406,7 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
     return (
       <g
         key={`side-${side}`}
-        ref={(el) => {
-          sideRefs.current[side] = el
-        }}
+        data-side={side}
         className="area-side"
         role={interactive ? 'button' : 'img'}
         tabIndex={interactive ? 0 : undefined}
