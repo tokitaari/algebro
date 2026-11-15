@@ -4,10 +4,11 @@ import { topics } from '../topics'
 export default function Home() {
   return (
     <>
+      <p className="eyebrow">einheit_1 · terme_und_binomische_formeln</p>
       <h1>Willkommen bei Lemmio</h1>
       <p className="lead">
-        Hier übst du Algebra Schritt für Schritt. Einheit 1: Terme und binomische Formeln.
-        Wähle ein Thema:
+        Hier übst du Algebra Schritt für Schritt: Klammern auflösen, Formeln durchschauen, Terme zerlegen.
+        Einheit 1 hat drei Themen – such dir eins aus:
       </p>
       <ul className="card-list">
         {topics.map((topic, index) => (
