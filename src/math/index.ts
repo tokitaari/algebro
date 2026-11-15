@@ -1,5 +1,5 @@
 /**
- * Math core of Algebro: parsing learner input, canonical polynomials,
+ * Math core of Lemmio: parsing learner input, canonical polynomials,
  * equivalence and form checks, and task generators for unit 1.
  *
  * Typical use in the UI:

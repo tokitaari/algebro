@@ -9,7 +9,7 @@ export default function Layout() {
       </a>
       <header className="app-header">
         <Link to="/" className="brand">
-          Algebro
+          Lemmio
         </Link>
         <nav aria-label="Teilthemen" className="topic-nav">
           {topics.map((topic) => (
@@ -23,7 +23,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="app-footer">
-        Algebro · Einheit 1: Terme und binomische Formeln · Dein Fortschritt bleibt in deinem Browser.
+        Lemmio · Einheit 1: Terme und binomische Formeln · Dein Fortschritt bleibt in deinem Browser.
       </footer>
     </div>
   )

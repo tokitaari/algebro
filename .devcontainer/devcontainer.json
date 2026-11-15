@@ -1,8 +1,8 @@
 {
-  "name": "Algebro",
+  "name": "Lemmio",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
-  "workspaceFolder": "/workspaces/algebro",
+  "workspaceFolder": "/workspaces/lemmio",
   "remoteUser": "node",
   "shutdownAction": "stopCompose",
   "features": {
@@ -10,8 +10,8 @@
   },
   "postCreateCommand": "sudo chown node:node node_modules && npm ci",
   "portsAttributes": {
-    "5173": { "label": "Algebro (Dev-Server)", "onAutoForward": "notify" },
-    "4173": { "label": "Algebro (Preview)", "onAutoForward": "silent" }
+    "5173": { "label": "Lemmio (Dev-Server)", "onAutoForward": "notify" },
+    "4173": { "label": "Lemmio (Preview)", "onAutoForward": "silent" }
   },
   "customizations": {
     "vscode": {

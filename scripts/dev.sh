@@ -39,7 +39,7 @@ run() { "${COMPOSE[@]}" exec "$SERVICE" "$@"; }
 ensure_up() {
   "${COMPOSE[@]}" up -d --build
   # The volume mount point is created by Docker as root.
-  "${COMPOSE[@]}" exec -u root "$SERVICE" chown node:node /workspaces/algebro/node_modules
+  "${COMPOSE[@]}" exec -u root "$SERVICE" chown node:node /workspaces/lemmio/node_modules
   run bash -c '
     hash=$(sha256sum package-lock.json | cut -d" " -f1)
     if [[ "$(cat node_modules/.lock-hash 2>/dev/null)" != "$hash" ]]; then

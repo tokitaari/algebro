@@ -1,4 +1,4 @@
-# Algebro
+# Lemmio
 
 Algebra üben für Klasse 8 bis Abitur. Responsive Web-App im Browser, ohne Konten und ohne Tracking; der Fortschritt bleibt lokal im Browser.
 
@@ -35,7 +35,7 @@ scripts/dev.sh down     # stoppen
 scripts/dev.sh reset    # stoppen und node_modules-Volume löschen
 ```
 
-Liegt das Repo unter WSL2 auf einem Windows-Laufwerk (`/mnt/d/...`), schaltet das Skript das Polling für Dateiänderungen automatisch ein. Besser und schneller ist ein Klon im WSL-Dateisystem (z. B. `~/algebro`). Ports lassen sich mit `DEV_PORT` und `PREVIEW_PORT` ändern.
+Liegt das Repo unter WSL2 auf einem Windows-Laufwerk (`/mnt/d/...`), schaltet das Skript das Polling für Dateiänderungen automatisch ein. Besser und schneller ist ein Klon im WSL-Dateisystem (z. B. `~/lemmio`). Ports lassen sich mit `DEV_PORT` und `PREVIEW_PORT` ändern.
 
 ## Stack
 
