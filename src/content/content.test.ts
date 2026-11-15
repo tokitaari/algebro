@@ -3,6 +3,7 @@ import katex from 'katex'
 import { describe, expect, it } from 'vitest'
 import { areEquivalent, checkAnswer, parse, toLatex, toPolynomial, toText, TOPIC_IDS } from '../math'
 import { allSubtopics, catalog } from '../catalog'
+import { deckMarkup, validateDeck } from '../cards'
 import { allFormulas, findContent, findFormula, formulaGroupsOf, formulaLatex, formulaSheets, topicContent } from './index'
 import { chainToLatex, splitChain, splitMarkup } from './markup'
 import type { TopicContent } from './types'
@@ -13,6 +14,7 @@ function markupTexts(content: TopicContent): string[] {
     ...content.sections.flatMap((s) => [...s.paragraphs, ...(s.steps ?? [])]),
     ...content.pitfalls,
     ...content.examples.flatMap((e) => (e.comment ? [e.comment] : [])),
+    ...(content.cards ? deckMarkup({ id: 'content', cards: content.cards }) : []),
   ]
 }
 
@@ -107,6 +109,10 @@ describe('topic content', () => {
       for (const section of content.sections) expect(section.paragraphs.length).toBeGreaterThan(0)
       expect(content.pitfalls.length).toBeGreaterThan(0)
       expect(content.examples.length).toBeGreaterThan(0)
+    })
+
+    it('has a valid card deck, if any', () => {
+      if (content.cards) expect(validateDeck({ id: topic, cards: content.cards })).toEqual([])
     })
 
     it('only references known formulas', () => {

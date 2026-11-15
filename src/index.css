@@ -923,10 +923,300 @@ p .tex,
   margin-top: 0;
 }
 
+/* Card decks: path of cards, one card at a time, questions, widgets */
+
+.card-path {
+  --node: 1.25rem;
+  display: flex;
+  align-items: center;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.card-step {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.card-step:last-child {
+  flex: none;
+}
+
+.card-step:not(:last-child)::after {
+  content: '';
+  flex: 1 1 0;
+  min-width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+
+.card-step.card-done:not(:last-child)::after {
+  background: var(--accent);
+}
+
+/* The button is larger than the node: at least 24 px wide (WCAG 2.5.8) and 2.75 rem tall. */
+.card-node-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 1.5rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.card-node-button:disabled {
+  cursor: not-allowed;
+}
+
+.card-node {
+  width: var(--node);
+  height: var(--node);
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: calc(var(--node) * 0.55);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.card-done .card-node {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.card-open .card-node {
+  border-color: var(--accent);
+}
+
+.card-current .card-node {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px var(--pink-soft);
+}
+
+/* Locked cards: dashed border instead of colour alone. */
+.card-locked .card-node {
+  border-style: dashed;
+}
+
+.card-node-button:hover:not(:disabled) .card-node {
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.deck-card {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.deck-counter {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.panel .deck-card h3 {
+  margin: 0.15rem 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.deck-card h3:focus {
+  outline: none;
+}
+
+.deck-card h3:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.deck-card > p {
+  margin: 0 0 0.75rem;
+}
+
+.deck-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.deck-lock {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.deck-done {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.panel .deck-done h3 {
+  margin-top: 0;
+  font-family: var(--font-mono);
+}
+
+.deck-done h3:focus {
+  outline: none;
+}
+
+.widget {
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.widget .solution {
+  margin-top: 0;
+}
+
+.widget .practice-actions {
+  align-items: center;
+}
+
+.term-steps-count {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.question {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.question-prompt {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.choice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.choice legend {
+  padding: 0;
+}
+
+.choice-options {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.choice-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.85rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.choice-option input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.choice-option:has(input:checked) {
+  border-color: var(--accent);
+}
+
+.choice-option:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.choice-text {
+  flex: 1;
+}
+
+.choice-mark {
+  font-weight: 700;
+}
+
+.choice-option.choice-right,
+.choice-option.choice-right:has(input:checked) {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.choice-right .choice-text {
+  color: var(--text);
+}
+
+.choice-option.choice-wrong,
+.choice-option.choice-wrong:has(input:checked) {
+  border-color: var(--danger);
+  border-style: dashed;
+}
+
+.choice-wrong .choice-mark {
+  color: var(--danger);
+}
+
+.choice:disabled .choice-option {
+  cursor: default;
+}
+
+.question-explanation {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+}
+
+.question-explanation p {
+  margin: 0;
+}
+
+.question-explanation p + p {
+  margin-top: 0.4rem;
+}
+
+.question .practice-actions {
+  margin-top: 0.75rem;
+}
+
 /* Wider screens */
 
 @media (min-width: 30rem) {
-  .skill-path {
+  .skill-path,
+  .card-path {
     --node: 1.5rem;
   }
 
@@ -949,7 +1239,9 @@ p .tex,
   .math-input,
   .theme-option,
   .filter-option,
-  .topic-nav a {
+  .topic-nav a,
+  .choice-option,
+  .card-node {
     transition:
       border-color 0.15s,
       box-shadow 0.15s,

@@ -88,6 +88,13 @@ describe('Routing and layout', () => {
     expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
   })
 
+  it('serves the card demo in the dev server (the route is not part of the build)', async () => {
+    renderAt('/dev/karten')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Karten-Demo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'Worum geht es?' })).toBeInTheDocument()
+    expect(screen.getByText('Karte 1 von 5')).toBeInTheDocument()
+  })
+
   it('shows "not found" for nested unknown paths', () => {
     renderAt('/a/b/c/d')
     expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
