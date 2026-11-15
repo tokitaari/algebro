@@ -53,7 +53,8 @@ export default function ChoiceQuestionView({ question, state, canReveal, onAnswe
                   {mark && (
                     <span className="choice-mark">
                       <span aria-hidden="true">{mark === 'right' ? '✓' : '✗'}</span>
-                      <span className="visually-hidden">{mark === 'right' ? ' (richtig)' : ' (falsch)'}</span>
+                      {/* Starts with a comma: the name computation drops leading spaces of an element. */}
+                      <span className="visually-hidden">{mark === 'right' ? ', richtig' : ', falsch'}</span>
                     </span>
                   )}
                 </label>
