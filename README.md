@@ -4,15 +4,22 @@ Algebra üben für Klasse 8 bis Abitur. Responsive Web-App im Browser, ohne Kont
 
 Live: https://tokitaari.github.io/lemmio/
 
-## Einheit 1: Terme und binomische Formeln
+## Inhalte
 
-Drei Teilthemen, je mit Erklärung, durchgerechneten Beispielen, Formeln und einer Übung:
+Die App ist nach Bereich, Thema und Teilthema gegliedert. Die Klasse ist eine Eigenschaft des Themas (Badge und Filter auf der Startseite). Jedes Teilthema hat unter `/<bereich>/<thema>/<teilthema>` eine Erklärung als Kartenfolge, durchgerechnete Beispiele, die zugehörigen Formeln und eine Übung.
 
-1. Klammern ausmultiplizieren (Summe mal Summe)
-2. Binomische Formeln 1 bis 3 anwenden
-3. Faktorisieren (Ausklammern, binomische Formeln rückwärts)
+| Bereich | Thema (Klasse) | Teilthemen |
+|---|---|---|
+| Algebra | Terme und binomische Formeln (8) | Klammern ausmultiplizieren · Binomische Formeln · Faktorisieren |
+| Algebra | Lineare Gleichungen (8) | Gleichungen umformen · Gleichungen mit Klammern · Sonderfälle |
 
-Die Übung erzeugt Serien aus 10 Aufgaben. Die Antwort wird als Term eingegeben (`x^2+6x+9`, `x²+6x+9`, `9+6x+x^2` sind gleichwertig) und doppelt geprüft: auf algebraische Äquivalenz und auf die verlangte Form (z. B. „ausmultipliziert“). Die Rückmeldung zeigt beides getrennt als Chips „äquivalent“ und „Form ok“, danach folgt die Musterlösung. Der Fortschritt je Teilthema steht in `localStorage`.
+**Erklärung als Karten.** Je Karte ein kurzer Text, höchstens ein interaktives Element und meist eine Zwischenfrage; „Weiter“ bleibt gesperrt, bis die Frage gelöst ist oder die Lösung angezeigt wurde. Interaktive Elemente: Flächenmodell (Ausmultiplizieren, binomische Formeln, Faktorisieren), Waage und Umformungsschritte (Gleichungen) sowie Rechnungen Zeile für Zeile. Alle Animationen laufen im Browser und beachten `prefers-reduced-motion`. Der Kartenstand wird je Teilthema gespeichert.
+
+**Übung bei Termen.** Serien aus 10 Aufgaben. Die Antwort ist ein Term (`x^2+6x+9`, `x²+6x+9`, `9+6x+x^2` sind gleichwertig) und wird doppelt geprüft: auf algebraische Äquivalenz und auf die verlangte Form (z. B. „ausmultipliziert“). Die Rückmeldung zeigt beides getrennt als Chips „äquivalent“ und „Form ok“, danach folgt die Musterlösung.
+
+**Übung bei Gleichungen.** Serien aus 10 Aufgaben, die Zeile für Zeile gelöst werden. Zu jeder neuen Zeile gibt man die Umformung an (`| + 3x`, `| : 2`, „Term umformen“, „⇄“); geprüft werden die Umformung und beide Seiten der neuen Zeile. Am Ende steht die Lösungsmenge (`L = {3}`, `L = { }`, `L = ℚ`). Gewertet wird nur das Ergebnis: Fehler in einer Zeile lassen sich beliebig oft korrigieren, eine falsche Lösungsmenge beendet die Aufgabe.
+
+Der Fortschritt je Teilthema (beantwortet, richtig, letzte Serie) steht in `localStorage`. Der Formelsatz unter `/formelsatz` ist nach Themen gegliedert.
 
 ## Design
 
@@ -30,6 +37,8 @@ npm test          # Vitest (einmalig)
 npm run build     # Typprüfung + Produktions-Build nach dist/
 npm run preview   # Build lokal ansehen
 ```
+
+Im Dev-Server gibt es zusätzlich die Demo-Seite `/dev/karten` mit Beispielkarten für alle interaktiven Elemente. Sie ist nicht Teil des Builds.
 
 ### Dev-Container
 
@@ -55,24 +64,28 @@ Liegt das Repo unter WSL2 auf einem Windows-Laufwerk (`/mnt/d/...`), schaltet da
 
 ```text
 index.html        Einstieg mit Inline-Skript für das Theme
+src/catalog.ts    Struktur der App: Bereich → Thema → Teilthema (einzige Quelle)
 src/math/         Mathe-Kern: Parser, Polynome, Prüfung, Aufgabengeneratoren (ohne React)
-src/content/      Erklärtexte, Beispiele und Formelsatz je Teilthema
-src/practice/     Übungsserie als reiner Zustand und Fortschritt in localStorage
+src/math/equations/  Mathe-Kern für Gleichungen: Umformungen, Zeilenprüfung, Lösungsmenge
+src/cards/        Kartenfolgen: Datenmodell, Zustand, Speicher, Logik der interaktiven Elemente
+src/motion/       Kleine Animationsschicht (Web Animations API, reduzierte Bewegung)
+src/content/      Karten, Beispiele und Formelsatz je Teilthema
+src/practice/     Übungsserien als reiner Zustand und Fortschritt in localStorage
 src/theme/        Theme-System (hell/dunkel)
-src/components/   React-Bausteine (Practice, SkillPath, MathInput, ThemeToggle, ...)
-src/pages/        Seiten: Startseite, Teilthema, Formelsatz, nicht gefunden
-src/topics.ts     Liste der Teilthemen (Slug, Titel, Kurztext)
+src/components/   React-Bausteine (Practice, EquationPractice, SkillPath, MathInput, ...)
+src/components/cards/  Kartenfolge und interaktive Elemente (Flächenmodell, Waage, ...)
+src/pages/        Seiten: Startseite, Teilthema, Formelsatz, nicht gefunden (dev/: Demo)
 src/index.css     Design-Tokens beider Themes und alle Styles
 ```
 
 Mehr dazu:
 
 - [Architekturüberblick](docs/architektur.md)
-- [Anleitung: neue Einheit oder neues Teilthema hinzufügen](docs/neue-einheit.md)
+- [Anleitung: neues Teilthema, neues Thema oder neues Gleichungs-Teilthema hinzufügen](docs/neue-einheit.md)
 
 ## Stack
 
-React, TypeScript, Vite, React Router, KaTeX (Formelsatz, lokal gebündelt), Vitest (mit Testing Library), ESLint.
+React, TypeScript, Vite, React Router, KaTeX (lokal gebündelt), Vitest (mit Testing Library), ESLint. Animationen ohne Bibliothek (Web Animations API).
 
 ## CI und Deployment
 
@@ -80,6 +93,10 @@ React, TypeScript, Vite, React Router, KaTeX (Formelsatz, lokal gebündelt), Vit
 
 Einmalig im Repo einstellen: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
+## Releases
+
+Ein Release entspricht einer Lerneinheit (Iteration); die Versionsnummer zählt die Einheiten. „Einheit“ ist nur ein interner Begriff und erscheint nicht in der App. Änderungen stehen im [Changelog](CHANGELOG.md), die Release Notes je Version unter `docs/release-notes/`.
+
 ## Datenschutz
 
-Keine Konten, kein Backend, kein Tracking, keine Übertragung an Server. Gespeichert werden nur zwei Einträge im Browser: `lemmio:progress` (Übungsfortschritt) und `lemmio:theme` (gewähltes Design).
+Keine Konten, kein Backend, kein Tracking, keine Übertragung an Server. Gespeichert werden nur drei Einträge im Browser: `lemmio:progress` (Übungsfortschritt), `lemmio:cards` (Stand der Kartenfolgen) und `lemmio:theme` (gewähltes Design).
