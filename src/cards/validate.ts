@@ -1,6 +1,7 @@
 import type { Markup } from '../content/types'
 import { areEquivalent, checkAnswer, parse, type Expr } from '../math'
 import { areaModelProblems, areaModelTerms, buildAreaModel } from './areaModel'
+import { balanceProblems, balanceTerms, buildBalance } from './balance'
 import { termQuestionKey } from './deck'
 import { CARD_ID, DECK_ID } from './storage'
 import type { Card, CardQuestion, CardWidget, Deck } from './types'
@@ -52,6 +53,8 @@ function widgetProblems(widget: CardWidget): string[] {
     }
     case 'area-model':
       return areaModelProblems(widget)
+    case 'balance':
+      return balanceProblems(widget)
   }
 }
 
@@ -94,6 +97,7 @@ function cardTerms(card: Card): string[] {
   if (widget?.kind === 'area-model' && areaModelProblems(widget).length === 0) {
     terms.push(...areaModelTerms(buildAreaModel(widget)))
   }
+  if (widget?.kind === 'balance' && balanceProblems(widget).length === 0) terms.push(...balanceTerms(buildBalance(widget)))
   if (card.question?.kind === 'term' && card.question.term !== undefined) terms.push(card.question.term)
   return terms
 }

@@ -75,6 +75,17 @@ describe('area model widget', () => {
   })
 })
 
+describe('balance widget', () => {
+  it('reports the problems of the balance with the card', () => {
+    const broken = card({ widget: { kind: 'balance', equation: '3x + 2 = x + 8', mode: 'steps', steps: ['| : 2', '| · x'] } })
+    expect(validateDeck(deckOf(broken))).toEqual(['card "karte": balance: operation "| · x" cannot be used (multiply-by-term)'])
+    const stuck = card({ widget: { kind: 'balance', equation: '3x + 2 = x + 8', mode: 'steps', steps: ['| : 2'] } })
+    expect(validateDeck(deckOf(stuck))).toEqual(['card "karte": balance: step ": 2" does not work on 3x + 2 = x + 8 (not-divisible)'])
+    const fine = card({ widget: { kind: 'balance', equation: '3x + 2 = x + 8', mode: 'steps', steps: ['| - x', '| - 2', '| : 2'] } })
+    expect(validateDeck(deckOf(fine))).toEqual([])
+  })
+})
+
 describe('deckTerms', () => {
   it('collects widget lines and the terms of term questions', () => {
     const terms = deckTerms(
@@ -83,9 +94,24 @@ describe('deckTerms', () => {
         card({ id: 'b', widget: { kind: 'area-model', first: ['x', '3'], second: ['x', '3'], mode: 'factor' } }),
         card({ id: 'c', question: { kind: 'term', prompt: 'P', term: '(x+2)(x+4)', answer: 'x^2+6x+8', form: { kind: 'expanded' } } }),
         card({ id: 'd', widget: { kind: 'area-model', first: [], second: ['x'], mode: 'expand' } }),
+        card({ id: 'e', widget: { kind: 'balance', equation: '2x = 6', mode: 'steps', steps: ['| : 2'] } }),
+        card({ id: 'f', widget: { kind: 'balance', equation: '2x = 6', mode: 'steps', steps: ['| : 4'] } }),
       ),
     )
-    expect(terms).toEqual(['(x+1)^2', 'x^2+2x+1', '(x + 3)^2', 'x² + 3x + 3x + 9', 'x² + 6x + 9', '3x + 3x', '6x', '(x+2)(x+4)'])
+    expect(terms).toEqual([
+      '(x+1)^2',
+      'x^2+2x+1',
+      '(x + 3)^2',
+      'x² + 3x + 3x + 9',
+      'x² + 6x + 9',
+      '3x + 3x',
+      '6x',
+      '(x+2)(x+4)',
+      '2x',
+      '6',
+      'x',
+      '3',
+    ])
   })
 })
 
