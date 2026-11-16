@@ -2,21 +2,24 @@
 
 Lemmio ist eine reine Frontend-SPA: React, TypeScript und Vite, statisch auf GitHub Pages gehostet. Es gibt kein Backend und keine Konten. Zustand, der über einen Besuch hinausgeht, liegt in `localStorage`.
 
-Stand: Einheit 1 (Terme und binomische Formeln), nach Sub-Task 4a (Redesign).
+Stand: nach Einheit 2 (Lineare Gleichungen und Umbau auf Karten), vor dem Release `release-v0.0.2`.
 
 ## Schichten
 
 ```text
 pages/ + components/        Darstellung (React)
         │
-        ├── content/        Texte, Beispiele, Formelsatz (Daten + KaTeX-Satz)
-        ├── practice/       Übungsserie (reiner Zustand) und Fortschritt
+        ├── catalog.ts      Struktur: Bereich → Thema → Teilthema
+        ├── content/        Karten, Beispiele, Formelsatz (Daten + KaTeX-Satz)
+        ├── cards/          Kartenfolgen: Datenmodell, Zustand, Speicher, Logik der Widgets
+        ├── practice/       Übungsserien (reiner Zustand) und Fortschritt
+        ├── motion/         Animationshilfen
         ├── theme/          Theme-Wahl
         │
-        └── math/           Mathe-Kern, ohne React
+        └── math/           Mathe-Kern (Terme, Gleichungen), ohne React
 ```
 
-Abhängigkeiten zeigen nur nach unten. `src/math` kennt weder React noch den Browser; `src/practice/session.ts` ist ebenfalls reiner Zustand ohne React. Beides ist deshalb ohne DOM testbar.
+Abhängigkeiten zeigen nur nach unten. `src/math` kennt weder React noch den Browser. `src/practice/session.ts`, `src/practice/equationSession.ts` und fast alles in `src/cards` (alles außer dem Hook `useDeck`) sind reiner Zustand bzw. reine Logik ohne React und deshalb ohne DOM testbar. `src/content/types.ts` und `src/cards/types.ts` verweisen nur über Typen aufeinander.
 
 ## Verzeichnisse
 
@@ -24,52 +27,142 @@ Abhängigkeiten zeigen nur nach unten. `src/math` kennt weder React noch den Bro
 |---|---|
 | `index.html` | Einstieg, `lang="de"`, Inline-Skript für das Theme |
 | `src/main.tsx` | Start: `initTheme()`, Router (`basename` aus `import.meta.env.BASE_URL`), KaTeX-CSS, `index.css` |
-| `src/routes.tsx` | Routen: `/` (Startseite), `/formelsatz`, `/:slug` (Teilthema), `*` (nicht gefunden), alle unter `Layout` |
-| `src/topics.ts` | Liste der Teilthemen: `slug`, `title`, `summary`; `findTopic(slug)` |
-| `src/math/` | Mathe-Kern (siehe unten) |
-| `src/content/` | Inhalte je Teilthema, `formulas.ts`, `markup.ts` |
-| `src/practice/` | `session.ts`, `progress.ts`, `useTopicProgress.ts` |
+| `src/routes.tsx` | Routen (siehe [Katalog und Routing](#katalog-und-routing)) |
+| `src/catalog.ts` | Katalog: Bereiche, Themen, Teilthemen, Klasse; Hilfsfunktionen |
+| `src/math/` | Mathe-Kern für Terme: Parser, Polynome, Prüfung, Generatoren (`tasks/`); `topics.ts` fasst beide Register zusammen |
+| `src/math/equations/` | Mathe-Kern für Gleichungen: Lesen, Prüfen, Lösen, Generatoren |
+| `src/cards/` | `types.ts`, `deck.ts`, `storage.ts`, `useDeck.ts`, `validate.ts`; Logik der Widgets: `areaModel.ts`, `balance.ts`, `equationSteps.ts` |
+| `src/motion/` | `motion.ts` (`animate`, `runSequence`, Presets), `hooks.ts` |
+| `src/content/` | Inhalte je Teilthema (`ausmultiplizieren.ts`, …, `gleichungen-umformen.ts`, …), `index.ts`, `formulas.ts`, `markup.ts`, `types.ts`, `poly.ts` |
+| `src/practice/` | `session.ts`, `equationSession.ts`, `progress.ts`, `useTopicProgress.ts` |
 | `src/theme/` | `theme.ts`, `useTheme.ts` |
-| `src/components/` | `Layout`, `Breadcrumb`, `ThemeToggle`, `Practice`, `SkillPath`, `MathInput`, `SolutionSteps`, `Tex`, `RichText`, `FormulaList`, `WorkedExampleCard` |
-| `src/pages/` | `Home`, `TopicPage`, `FormulaSheet`, `NotFound` |
+| `src/components/` | `Layout`, `Breadcrumb`, `ThemeToggle`, `Practice`, `EquationPractice`, `EquationEntry`, `MathInput`, `PracticeProgress`, `SeriesSummary`, `SkillPath`, `Chip`, `InputEcho`, `SolutionSteps`, `EquationSolutionSteps`, `Tex`, `RichText`, `FormulaList`, `WorkedExampleCard` |
+| `src/components/cards/` | `CardDeck`, `CardPath`, `CardWidgetView`, `ChoiceQuestionView`, `TermQuestionView`, `QuestionStatus`, `TermStepsView`, `AreaModelView`, `BalanceView`, `EquationStepsView` |
+| `src/pages/` | `Home`, `TopicPage`, `FormulaSheet`, `NotFound`; `dev/` mit der Kartendemo |
 | `src/index.css` | Design-Tokens beider Themes und alle Styles (eine Datei) |
-| `src/test/setup.ts` | Testumgebung (jest-dom) |
+| `src/test/` | Testumgebung (`setup.ts`, jest-dom) und Testhilfe `matchMedia.ts` (`mockReducedMotion`) |
 
 Tests liegen neben dem Code (`*.test.ts` bzw. `*.test.tsx`).
 
-## Routing
+## Katalog und Routing
 
-`createBrowserRouter(routes, { basename: import.meta.env.BASE_URL })`. Lokal ist `BASE_URL` gleich `/`, in der CI `/<repo>/` (Variable `BASE_PATH` in `vite.config.ts`). Die Route `/:slug` rendert `TopicPage`; ein unbekannter Slug liefert dort `NotFound`. Der Slug eines Teilthemas ist zugleich dessen `TopicId` im Mathe-Kern.
+`src/catalog.ts` ist die einzige Quelle der Struktur: `Area` → `Topic` (mit `grade`, der Klasse) → `Subtopic`. Startseite, Navigation, Breadcrumb, Fußzeile und Formelsatz werden daraus abgeleitet. Hilfen: `allSubtopics`, `findSubtopic`, `subtopicPath`, `gradesOf`, `filterByGrade`, `gradeLabel`. Bereiche richten sich nach den Inhaltsfeldern des KLP NRW.
+
+Der **Pfad `bereich/thema/teilthema`** ist überall derselbe Schlüssel: die Route (mit führendem Slash), die `TopicId` im Mathe-Kern, die Deck-Id der Karten, der Schlüssel für Inhalte und Fortschritt. `TopicId` ist nur als Muster `${string}/${string}/${string}` typisiert; welche Ids es gibt, entscheiden der Katalog und die Generator-Register. Begriffsfalle: `TopicId` bezeichnet die Teilthema-Ebene, `Topic` im Katalog die Thema-Ebene.
+
+Routen (`routes.tsx`, alle unter `Layout`):
+
+| Route | Seite |
+|---|---|
+| `/` | `Home`: Teilthemen nach Bereich und Thema, Klassen-Badge, Filter (`?klasse=8`) |
+| `/formelsatz` | `FormulaSheet` |
+| `/:area/:topic/:subtopic` | `TopicPage`; ein Pfad, der nicht im Katalog steht, liefert `NotFound` |
+| `/dev/karten` | Kartendemo, nur bei `import.meta.env.DEV`; im Build fehlt die Route samt Modul |
+| `*` | `NotFound` |
+
+`createBrowserRouter(routes, { basename: import.meta.env.BASE_URL })`. Lokal ist `BASE_URL` gleich `/`, in der CI `/<repo>/` (Variable `BASE_PATH` in `vite.config.ts`). Es gibt keine Weiterleitungen alter Routen.
 
 Auf GitHub Pages gibt es kein serverseitiges Routing. Die CI kopiert deshalb `dist/index.html` nach `dist/404.html`. Direktlinks funktionieren, der HTTP-Status ist aber 404.
 
-## Mathe-Kern (`src/math`)
+## Mathe-Kern für Terme (`src/math`)
 
 Einstieg ist `src/math/index.ts`.
 
-- **Eingabe:** `parser.ts` liest Terme in Schulschreibweise (`2x`, `3(x+1)`, `^2` und `²`, `·`/`*`/`×`, Dezimalkomma). `parse` wirft `TermError`; `readTerm` fängt das ab und liefert `{ ok, … }`.
+- **Eingabe:** `parser.ts` liest Terme in Schulschreibweise (`2x`, `3(x+1)`, `^2` und `²`, `·`/`*`/`×`, `:` und `/`, Dezimalkomma, echtes Minus `−`). Vorzeichen stehen nur am Anfang bzw. nach `(`. `parse` wirft `TermError`; `readTerm` fängt das ab und liefert `{ ok, … }`.
 - **Normalform:** `polynomial.ts` und `normalize.ts` bringen einen Term in ein kanonisches Polynom (`Polynomial`, Koeffizienten als `Rational`). Zwei Terme sind gleichwertig, wenn ihre Polynome gleich sind (`areEquivalent`).
-- **Prüfung:** `checkAnswer(task, input)` prüft zuerst Äquivalenz, dann die verlangte Form (`form.ts`: `expanded` oder `factored`). Ergebnis: `correct`, `wrong`, `wrong-form` (mit `hint.code` und deutschem `hint.message`) oder `invalid` (mit `error.code`, `error.message`, `error.position`, `error.length`).
+- **Prüfung:** `checkAnswer(task, input)` prüft zuerst Äquivalenz, dann die verlangte Form (`form.ts`: `expanded` oder `factored`). Ergebnis: `correct`, `wrong`, `wrong-form` (mit `hint.code` und deutschem `hint.message`) oder `invalid` (mit `error.code`, `error.message`, `error.position`, `error.length`). `checkAnswer` nimmt jeden `AnswerKey` (`expected`, `form`), nicht nur `Task`; so prüfen auch die Term-Fragen der Karten.
 - **Ausgabe:** `toLatex` für KaTeX, `toText` für Klartext (wieder einlesbar).
-- **Aufgaben:** `tasks/` enthält je Teilthema einen Generator (`expand.ts`, `binomial.ts`, `factor.ts`). `generators` ist die Tabelle `TopicId → Generator`, `generateTask` und `generateSeries` vermeiden Wiederholungen über `task.key`. Jede `Task` trägt `instruction`, `prompt`, `steps[]` (Musterlösung), `solution`, `key` und `form`. `build*Task`-Funktionen erzeugen dieselben Aufgaben mit festen Zahlen für Beispiele.
+- **Aufgaben:** `tasks/` enthält je Teilthema einen Generator (`expand.ts`, `binomial.ts`, `factor.ts`). `generators` ist die Tabelle `TopicId → Generator`, `TOPIC_IDS` wird daraus abgeleitet. `generateTask` und `generateSeries` vermeiden Wiederholungen über `task.key`. Jede `Task` trägt `instruction`, `prompt`, `steps[]` (Musterlösung), `solution`, `key` und `form`. `build*Task`-Funktionen erzeugen dieselben Aufgaben mit festen Zahlen für Beispiele.
 - **Zufall:** `Rng` ist eine Funktion `() => number`. In der App ist es `Math.random`, in Tests `createRng(seed)`.
 
 Aufgaben haben nur ganzzahlige Koeffizienten; Variablen sind `x`, `y`, `a`, `b`.
 
+## Mathe-Kern für Gleichungen (`src/math/equations`)
+
+Über `src/math/index.ts` re-exportiert (`export * from './equations'`). Eine Gleichung wird Zeile für Zeile gelöst; die Antwort ist kein einzelner Term. Deshalb gibt es eigene Typen, Prüfungen und Generatoren.
+
+- **Typen** (`types.ts`): `Equation` (`left`, `right` als `Expr`); `Operation` ist `{ kind: 'add' | 'subtract' | 'multiply' | 'divide', operand }`, `{ kind: 'simplify' }` („Term umformen“) oder `{ kind: 'swap' }` („⇄“); `SolutionSet` ist `single` (`value`), `empty` oder `all`; `EquationTask` trägt `topic`, `variant`, `key`, `instruction`, `variable`, `equation`, `steps[]` (je `operation`, `equation`, `note`), `solutionSet`, `solutionNote`. Ein Schritt bedeutet: `operation` auf die Zeile davor angewandt ergibt `equation`.
+- **Lesen:** `readEquation(input)` (genau ein `=`), `readOperation(input)` (`| + 3x`, `| - 5`, `| · (-2)`, `| : 4`, `⇄`, `T` oder `Term umformen`; der Strich ist optional; Summen als Operand nur in Klammern) und `readSolutionSet(input)` (`L = {3}`, `L = { }`, `L = ℚ`, auch `Q` und `∅`, auch ohne `L =`). `readOperation` trennt `reason: 'invalid'` (nicht lesbar) von `'not-allowed'` (lesbar, aber keine zulässige Umformung: Mal oder geteilt durch einen Term mit x, durch 0, nichtlinear; jeweils mit deutschem Hinweis).
+- **Prüfen:** `checkStep(previous, operation, input)` → `correct` (mit der geparsten `equation` für die nächste Zeile), `wrong` (`left` und `right` je Seite, `keepsSolutions`: Zeile hat noch dieselbe Lösungsmenge, passt aber nicht zur angegebenen Umformung, z. B. zwei Schritte auf einmal) oder `invalid`. `checkSolutionSet(task, input)` → `correct`, `wrong` (`given`) oder `invalid`. Jede Seite wird für sich auf Äquivalenz zu „alte Seite ∘ Umformung“ geprüft; wie weit zusammengefasst ist, spielt keine Rolle. `equationForm(equation)` unterscheidet `solved` (`x = c`), `solved-swapped` (`c = x`), `statement` (`3 = 5`) und `open`.
+- **Ausgabe:** `equationToText/Latex`, `operationToText/Latex`, `solutionSetToText/Latex`; der Text ist wieder einlesbar.
+- **Musterlösung:** `solveStepByStep(equation)` löst Klammern auf, ordnet und fasst zusammen (je „Term umformen“), tauscht die Seiten, falls die Variable nur rechts steht, bringt die Variablen-Terme nach links und die Zahlen nach rechts und teilt durch den Koeffizienten (bei −1 mit `| · (-1)`). Sie endet mit `x = c` oder einer Aussage ohne Variable.
+- **Generatoren** (`tasks.ts`): `equationGenerators` (Tabelle `TopicId → Generator`) und `EQUATION_TOPIC_IDS` daraus. `buildEquationTask(topic, left, right)` erzeugt eine Aufgabe mit festen Zahlen (für Beispiele); `generateEquationTask` und `generateEquationSeries` verhalten sich wie bei Termen. Jede Aufgabe geht von einer ganzzahligen Lösung aus und rechnet die letzte freie Zahl daraus; Lösungen liegen in −9…9, alle Zahlen in der Rechnung unter 100 (`hasSmallIntegers`).
+
+### Zwei Register
+
+Term- und Gleichungs-Generatoren stehen bewusst in getrennten Tabellen (`generators`/`TOPIC_IDS` und `equationGenerators`/`EQUATION_TOPIC_IDS`). `src/math/topics.ts` fasst sie zusammen: `ALL_TOPIC_IDS`, `isTermTopic`, `isEquationTopic` und die Typen `TermTopicId`, `EquationTopicId`, `AnyTopicId`. Alles, was alle Teilthemen betrifft (Katalogtest, Inhalte, gespeicherter Fortschritt), nutzt `ALL_TOPIC_IDS`; `TopicPage` wählt über die Prüffunktionen die passende Übung.
+
+## Karten (`src/cards`, `components/cards`)
+
+Erklärungen sind Kartenfolgen (ähnlich brilliant.org): Eine Karte zur Zeit, je Karte Text, höchstens ein interaktives Element und meist eine Zwischenfrage. Alles ist reine Daten, damit Node-Tests jede Folge prüfen können.
+
+### Datenmodell (`types.ts`)
+
+- `Deck`: `id` (der `TopicId`-Pfad) und `cards`.
+- `Card`: `id` (stabil, Kleinbuchstaben und Bindestriche; der gespeicherte Stand bezieht sich darauf), `title`, `body` (Absätze als Markup), optional `widget` und `question`.
+- `CardWidget` ist eine Union mit dem Diskriminator `kind`: `term-steps`, `area-model`, `balance`, `equation-steps`.
+- `CardQuestion`: `choice` (`prompt`, `options[]` mit `text`, genau eine mit `correct: true`, optional `feedback`; `explanation?`) oder `term` (`prompt`, `term?` groß angezeigt, `answer` als Musterlösung in Eingabesyntax, `form`, `variables?`, `explanation?`). Term-Fragen werden mit `checkAnswer` geprüft (`termQuestionKey` baut den Schlüssel).
+
+### Zustand und Speicher
+
+- `deck.ts` ist wie `session.ts` ein reiner Zustand: `DeckState` (`index`, `questions` je Karten-Id mit `resolved`, `misses`, `feedback`). Eine Karte ist erreichbar, wenn alle Karten davor erledigt sind (keine Frage oder Frage gelöst); erreichbar ist also immer ein Präfix der Folge (`lastReachable`). Bei Auswahl- und Term-Fragen gibt es beliebig viele Versuche. `wrong` und `wrong-form` zählen als Fehlversuch, `invalid` nicht. „Lösung anzeigen“ (`reveal`) gibt es erst nach einem Fehlversuch. Zwischenfragen zählen nicht in den Übungsfortschritt.
+- `storage.ts` speichert unter `lemmio:cards` (Version 1) je Deck `{ current: Karten-Id, resolved: { Karten-Id: 'correct' | 'revealed' } }`. Antworten und Rückmeldungen werden nicht gespeichert. Unbekannte Karten-Ids werden beim Laden verworfen, die gespeicherte Position bleibt erreichbar. `useDeck(deck)` bindet Zustand und Speicher an React; die Komponente wird mit `key={deck.id}` eingebunden.
+- `validate.ts`: `validateDeck(deck)` liefert Strukturfehler (Id-Format, doppelte Ids, leere Titel, Widget- und Fragenprobleme; jede Antwort einer Term-Frage muss ihre eigene Prüfung bestehen). `deckMarkup`, `deckTerms` und `deckLatex` liefern alle Texte, Terme bzw. LaTeX-Teile, die ein Deck außerhalb des Markups setzt. Die Inhaltstests rufen sie für jedes Deck auf.
+
+### Oberfläche
+
+`CardDeck` zeigt die aktuelle Karte mit Kartenleiste (`CardPath`, springt nur zu erreichten Karten), Zähler und „Zurück“/„Weiter“. Gesperrte Knöpfe tragen `aria-disabled` und nennen den Grund. ←/→ blättern, außer der Fokus liegt in einem Feld oder einer Radiogruppe. Der Fokus geht beim Blättern auf die Kartenüberschrift, nach gelöster Frage auf „Weiter“. Nach der letzten erledigten Karte erscheint der Abschlussblock (`finish`), auf der Themenseite der Link „Weiter zur Übung“. `CardWidgetView` wählt über `widget.kind` die Komponente; der `switch` ist erschöpfend, TypeScript meldet einen fehlenden Fall. Widgets, die Pfeiltasten selbst nutzen, rufen `preventDefault()` auf.
+
+### Animation (`src/motion`)
+
+Keine Animationsbibliothek. `animate(el, keyframes, options)` nutzt die Web Animations API; die Keyframes enden im CSS-Ruhezustand (kein `fill`). Ohne WAAPI, bei `prefers-reduced-motion` oder nach Abbruch ist die Animation sofort fertig. Dazu `ENTER`-Presets, `DURATION`, `delay`, `runSequence` und die Hooks `useReducedMotion` und `useSequencePlayer`. Bei reduzierter Bewegung zeigen die Widgets statt „Abspielen“ den Knopf „Alle zeigen“. In Tests setzt `mockReducedMotion` (`src/test/matchMedia.ts`) die Einstellung.
+
+### Interaktive Elemente
+
+| Widget | Zweck | Logik (rein) | Ansicht |
+|---|---|---|---|
+| `term-steps` | Term Schritt für Schritt umformen; jeder Schritt muss zum Start äquivalent sein | `validate.ts` | `TermStepsView` |
+| `area-model` | Produkt zweier Summen als Rechteck mit Teilflächen | `areaModel.ts` | `AreaModelView` |
+| `balance` | Gleichung als Waage | `balance.ts` | `BalanceView` |
+| `equation-steps` | Gleichung Zeile für Zeile mit Umformung | `equationSteps.ts` | `EquationStepsView` |
+
+**`term-steps`** (`start`, `steps[]` mit `term` und `note?`, `label?`): „Nächster Schritt“/„Von vorn“, „Abspielen“/„Anhalten“ bzw. „Alle zeigen“.
+
+**`area-model`** (`first`, `second`, `mode`, `lengths?`, `label?`): `first` ist die linke Kante (Zeilen), `second` die obere Kante (Spalten), je 1 bis 3 Summanden in Eingabesyntax. Modi: `expand` (Teilflächen aufdecken, dann zusammenfassen), `factor` (Teilflächen gegeben, Seiten aufdecken: Faktorisieren rückwärts), `explore` (maßstäblich, Längen per Griff ziehen, Zahlenprobe). Ohne `lengths` ist es eine Skizze, mit `lengths` maßstäblich (nur Summanden wie `3` oder `2x`); `explore` braucht `lengths` mit `min` und `max`. Negative Summanden sind abgeschnittene Streifen mit echter Geometrie; gleichartige Terme tragen Farbe und Symbol (●■▲◆). Die Griffe sind selbst `role="slider"` (Pfeiltasten, Pos1/Ende), Pointer Events mit `setPointerCapture`, `touch-action: none` nur am Griff. Teilflächen und Seiten sind Buttons. `areaModelProblems` prüft die Daten für `validateDeck`.
+
+**`balance`** (`equation`, `mode`, `steps?`, `operations?`, `label?`): Ein Kästchen wiegt x, ein Gewicht 1, negative Terme sind Ballons. Die Neigung folgt der echten Lösung; das Kästchen zeigt nur „x“. Darum muss eine eindeutige Lösung ganzzahlig und ≥ 0 sein (Sonderfälle ohne oder mit unendlich vielen Lösungen gehen, die Waage ist dann nie oder immer im Gleichgewicht). Grenzen: je Seite höchstens 6 x-Stücke und 12 Einer. Zulässige Umformungen: `+ T`, `- T` (ganze Zahlen und ganzzahlige Vielfache der Variablen), `: n` für n = 2…6 (nur wenn sich alles gleichmäßig teilen lässt), `· (-1)` und `: (-1)`. Modus `steps` wendet vorgegebene Umformungen auf beide Seiten an; Modus `explore` bietet eine Palette, die Wahl „beide Seiten / nur links / nur rechts“ (native Radiogruppe) und „Rückgängig“. `applyMove` liefert `pans`, `frames` (Stücke kommen dazu, Paare werden markiert und heben sich auf) und eine Zusammenfassung oder eine Ablehnung (`not-divisible`, `no-room`) mit Hinweis. Die Grafik ist ein SVG mit `role="img"` und vollständiger Beschreibung; Balken und Schalen bewegen sich per CSS-`transform` mit Transition (bei reduzierter Bewegung aus). Die Musterlösungen aus `solveStepByStep` lassen sich nicht ungeprüft als `steps` übernehmen, weil „Term umformen“ und „⇄“ nicht darstellbar sind (`balanceProblems` simuliert alle Schritte).
+
+**`equation-steps`** (`start`, `steps[]` mit `operation`, `equation`, `note?`, `solution?`, `label?`): `operation` steht in der Syntax von `readOperation` (`| - x`, `T`, `⇄`). Bei `+ − · :` erscheint zuerst eine Zwischenzeile mit der Umformung auf beiden Seiten (Operanden in Akzentfarbe), dann die zusammengefasste Zeile; „T“ und „⇄“ ergeben nur die neue Zeile. Am Ende steht die Schulnotation mit der Umformung neben jeder Zeile und der Lösungsmenge. `equationStepsProblems` prüft jeden Schritt mit `checkStep` und die Lösungsmenge gegen `solveEquation`; `describeFrame` liefert den Text der Live-Region.
+
+Neue Widget-Arten: [Anleitung](neue-einheit.md#neue-widget-art).
+
+### Demo
+
+`/dev/karten` (`src/pages/dev`, nur im Dev-Server) zeigt eine Beispielkarte je Widget und Modus. Der Test in `routes.test.tsx` nimmt die Kartenzahl aus dem Demo-Deck.
+
 ## Inhalte (`src/content`)
 
-`topicContent[topicId]` ist ein `TopicContent`: `sections` (Überschrift, Absätze, optional Schritte), `pitfalls`, `examples` (Titel, `task`, optional `comment`) und `formulaIds`. Der Formelsatz steht in `formulas.ts`.
+`topicContent[topicId]` ist ein `TopicContent`: `cards` (die Kartenfolge), `examples` (Titel, `task`, optional `comment`) und `formulaIds`. `topicContent` ist mit `satisfies Record<TopicId, TopicContent>` typisiert; `findContent(id)` gibt für unbekannte Ids `undefined` zurück.
 
-In Texten steht `$…$` für einen Term in Eingabesyntax, auch als Kette mit `=` und `≠`. `markup.ts` setzt ihn über `toLatex`, die Malpunkte aus der Quelle bleiben erhalten. Die Tests in `content.test.ts` prüfen jede Gleichung und Ungleichung im Text und jede Formel auf Wahrheit, parsen alle Terme und setzen sie mit KaTeX im strikten Modus. Ein falscher Text lässt also die CI scheitern.
+- **Beispiele:** `WorkedExample.task` ist eine `Task` (Terme) oder eine `EquationTask`; `isEquationTask` unterscheidet. Die Beispiele entstehen mit `build*Task` bzw. `buildEquationTask`, die Musterlösung kommt also aus dem Mathe-Kern. `WorkedExampleCard` zeigt Terme mit `SolutionSteps`, Gleichungen mit `EquationSolutionSteps` (Schulnotation: Umformung und Notiz neben der Zeile, letzte Zeile die Lösungsmenge).
+- **Markup:** `$…$` steht für einen Term in Eingabesyntax, auch als Kette mit `=` und `≠`; `markup.ts` setzt ihn über `toLatex`, Malpunkte aus der Quelle bleiben erhalten. Jede Kette in `$…$` wird als **Behauptung** geprüft: nie `$a = 3x$` als Zuordnung schreiben, sondern „$3x$ steht für $a$“; falsche Gleichungen nur mit `≠`.
+- **Gleichungen im Text** (`$eq: …$`): eine Gleichung, eine Gleichung mit Umformung (`$eq: 3x + 2 = x + 8 | - x$`), eine Umformung allein (`$eq: | : 2$`, `$eq: | ⇄$`) oder eine Lösungsmenge (`$eq: L = {3}$`, `{ }`, `ℚ`). Sie werden gelesen und gesetzt, aber nicht als Behauptung geprüft. Gelesen wird mit `readEquation`, `readOperation` und `readSolutionSet`, die Seiten werden mit `termToLatex` gesetzt.
+- **Formelsatz** (`formulas.ts`): `formulaSheets` ist eine Tabelle `"bereich/thema" → Gruppen`. Ein Eintrag (`SheetEntry`) ist eine `Formula` (Identität, `lhs` und `rhs`), eine `EquivalenceRule` (`from`, `to`, `condition?`) oder eine `SolutionSetRule` (`line`, `set`). `findFormula(id)` liefert jeden Eintrag, `allFormulas` nur die Identitäten, `allEntries` alle, `entryLatex` setzt einen Eintrag. `FormulaSheet` zeigt je Thema des Katalogs eine Sektion; Themen ohne Formeln fehlen.
+- **Tests** (`content.test.ts`): Formel-Ids eindeutig; jede Identität wahr; jede Äquivalenzregel erhält die Lösungen (geprüft mit Zahlen); jede Lösungsmengen-Regel liest die richtige Menge ab; je Teilthema: gültiges Deck (`validateDeck`), beide Fragearten vorhanden, Term-Teilthemen mit Flächenmodell und Gleichungs-Teilthemen mit Waage und `equation-steps`, alle Terme und Gleichungen lesbar und mit KaTeX im strikten Modus setzbar, alle Behauptungen in `$…$` wahr, jedes Beispiel gehört zum Teilthema und seine Musterlösung gilt als richtig. Ein falscher Text lässt die CI scheitern.
 
-## Übung (`src/practice`, `components/Practice.tsx`)
+## Übung (`src/practice`)
 
-- `session.ts`: Eine Serie ist ein reiner Zustand (`Session`: `tasks`, `index`, `outcomes`, `feedback`). Übergänge sind Funktionen: `createSession`, `submitAnswer`, `revealSolution`, `nextTask`; `finishedBetween` meldet, ob dabei eine Aufgabe oder die Serie abgeschlossen wurde.
-- Ablauf: Serie aus `SERIES_LENGTH` = 10 Aufgaben. `correct` und `wrong` beenden die Aufgabe und zeigen die Musterlösung. `wrong-form` und `invalid` zeigen nur einen Hinweis und erlauben einen neuen Versuch. „Lösung anzeigen“ zählt als falsch.
-- `progress.ts` und `useTopicProgress.ts`: Fortschritt je Teilthema (`answered`, `correct`, `lastSeries`) unter dem Schlüssel `lemmio:progress` (Version 1, ein Eintrag für alle Teilthemen). Beim Lesen wird validiert; kaputte oder fremde Daten fallen auf „leer“ zurück. Ist Speichern nicht möglich, zeigt die Übung eine Warnung und arbeitet im Speicher weiter.
-- `Practice` ist in `TopicPage` per `key={topic.slug}` an das Teilthema gebunden: Ein Wechsel startet eine frische Serie.
+Es gibt zwei Übungsarten mit derselben Serienlogik. `TopicPage` wählt `Practice` für Term-Teilthemen und `EquationPractice` für Gleichungs-Teilthemen (`isTermTopic`, `isEquationTopic`) und bindet sie mit `key={id}` an das Teilthema: Ein Wechsel startet eine frische Serie.
 
-### Rückmeldung
+**Gemeinsam:**
+
+- `SeriesState` in `session.ts` (`tasks`, `index`, `outcomes`) mit `isTaskFinished`, `isSeriesOver`, `countCorrect`, `finishedBetween`. Eine Serie hat `SERIES_LENGTH` = 10 Aufgaben; „Lösung anzeigen“ zählt als falsch.
+- `progress.ts` und `useTopicProgress.ts`: Fortschritt je Teilthema (`answered`, `correct`, `lastSeries`) unter `lemmio:progress` (Version 1, ein Eintrag für alle Teilthemen aus `ALL_TOPIC_IDS`). Beim Lesen wird validiert; kaputte oder fremde Daten fallen auf „leer“ zurück. Ist Speichern nicht möglich, zeigt die Übung eine Warnung und arbeitet im Speicher weiter. Ein neues Teilthema braucht keine Migration.
+- Komponenten `PracticeProgress` (Fortschrittstext, Speicherwarnung, bestätigtes Zurücksetzen), `SeriesSummary` (Serienergebnis), `SkillPath`, `Chip`, `InputEcho`.
+
+### Terme (`Practice`, `session.ts`)
+
+`Session` (`tasks`, `index`, `outcomes`, `feedback`); Übergänge: `createSession`, `submitAnswer`, `revealSolution`, `nextTask`. `correct` und `wrong` beenden die Aufgabe und zeigen die Musterlösung; `wrong-form` und `invalid` zeigen nur einen Hinweis und erlauben einen neuen Versuch.
 
 | Ergebnis | Klasse | Chips |
 |---|---|---|
@@ -79,12 +172,22 @@ In Texten steht `$…$` für einen Term in Eingabesyntax, auch als Kette mit `=`
 | `revealed` | `.feedback-wrong` | keine |
 | `invalid` | `.feedback-invalid` | keine (stattdessen markierte Eingabe) |
 
-Die Chips sind die lokale Komponente `Chip` in `Practice.tsx` (`.chips`, `.chip`, `.chip-ok`, `.chip-bad`). Sie zeigen ein Zeichen (✓/✗) zusätzlich zur Farbe.
+Die Eingabetasten ergeben sich aus den Buchstaben der Aufgabe (`MathInput`).
+
+### Gleichungen (`EquationPractice`, `equationSession.ts`)
+
+`EquationSession` (`tasks`, `index`, `outcomes`, `lines`, `feedback`); `lines` sind die akzeptierten Zeilen der aktuellen Aufgabe (`EquationLine`: `operation`, `equation`). Übergänge: `createEquationSession`, `submitLine`, `submitSolutionSet`, `revealEquationSolution`, `nextEquationTask`.
+
+- `submitLine(session, operationInput, equationInput)` liest erst die Umformung (`readOperation`), dann die Zeile und prüft sie mit `checkStep` gegen die letzte akzeptierte Zeile (oder die Aufgabengleichung). Nur `correct` hängt eine Zeile an.
+- `submitSolutionSet(session, input)` ist erst erlaubt, wenn die letzte Zeile gelöst ist (`canGiveSolutionSet`: `equationForm` ≠ `open`; `c = x` genügt, ohne „⇄“), sonst `not-solved`. Dann `checkSolutionSet`.
+- **Wertung nur über das Ergebnis:** Zeilenfehler (`line-wrong`, auch mit `keepsSolutions`), nicht zulässige und unlesbare Eingaben lassen sich beliebig oft korrigieren und beenden nichts. Richtig ist die Aufgabe, wenn die Lösungsmenge stimmt und die Lösung nicht angezeigt wurde. Eine falsche, lesbare Lösungsmenge beendet die Aufgabe als falsch (`set-wrong`). „Lösung anzeigen“ geht jederzeit und zählt falsch.
+- `EquationFeedback`: nicht final sind `line-correct`, `line-wrong`, `operation-invalid`, `operation-not-allowed`, `equation-invalid`, `not-solved`, `set-invalid`; final sind `set-wrong`, `correct`, `revealed`.
+- **Oberfläche:** Liste „Deine Rechnung“ in Schulnotation (Umformung neben der Zeile davor; je akzeptierter Zeile die Chips „Umformung ok“ und „beide Seiten ok“; am Ende die Lösungsmenge mit Chip), darunter die Live-Region mit der Rückmeldung, dann `EquationEntry`. Das sind die Felder „Umformung“, „Neue Zeile“ (ein Formular, „Zeile prüfen“) und „Lösungsmenge“ (eigenes Formular, „Lösungsmenge prüfen“) sowie „Lösung anzeigen“. Eine Tastenreihe („Mathe-Tasten“) folgt dem Feld mit Fokus; Tasten behalten den Fokus im Feld. Die Tasten „Term umformen“, „⇄“, `{ }` und `ℚ` ersetzen den Feldinhalt, `L = {…}` setzt den Cursor in die Klammer. Der Fokus wandert per Effekt zum nächsten sinnvollen Feld. Nach Abschluss erscheint die Musterlösung (`EquationSolutionSteps`).
 
 ### Skill-Pfad und Breadcrumb
 
-- `SkillPath` zeigt eine Serie als Pfad aus Knoten statt als Fortschrittsbalken. Props: `total`, `outcomes`, `current` (fehlt am Ende der Serie), `label`. Zustände: `correct`, `wrong`, `current`, `todo`. Fertige Knoten tragen ✓ oder ✗, jeder Knoten hat einen Text für Screenreader („Aufgabe 3: richtig“), der aktuelle Knoten `aria-current="step"`. Die Liste bekommt `role="list"` ausdrücklich, weil Safari die Listensemantik ohne `list-style` verwirft. Verwendet in der laufenden Serie und in der Zusammenfassung.
-- `Breadcrumb` zeigt den Pfad über dem Seitentitel, z. B. `einheit_1 / binomische_formeln`. Der erste Teil verlinkt auf die Startseite; `einheit_1` ist derzeit fest im Code (siehe [neue-einheit.md](neue-einheit.md#was-heute-noch-fest-auf-einheit-1-steht)). Verwendet in `TopicPage` und `FormulaSheet`.
+- `SkillPath` zeigt eine Serie als Pfad aus Knoten statt als Fortschrittsbalken. Props: `total`, `outcomes`, `current` (fehlt am Ende der Serie), `label`. Zustände: `correct`, `wrong`, `current`, `todo`. Fertige Knoten tragen ✓ oder ✗, jeder Knoten hat einen Text für Screenreader („Aufgabe 3: richtig“), der aktuelle Knoten `aria-current="step"`. Die Liste bekommt `role="list"` ausdrücklich, weil Safari die Listensemantik ohne `list-style` verwirft.
+- `Breadcrumb` nimmt `trail` (Slugs aus dem Katalog; Bindestriche werden als Unterstriche gezeigt) und zeigt z. B. `start / algebra / terme / binomische_formeln`. Nur „start“ ist ein Link; Übersichtsseiten für Bereich und Thema gibt es noch nicht.
 
 ## Theme-System
 
@@ -97,7 +200,7 @@ Genau zwei Themes: `light` und `dark` (`Theme` in `src/theme/theme.ts`). Es gibt
 3. **`ThemeToggle`** (Kopfzeile, Gruppe „Design“, Schaltflächen „Hell“ und „Dunkel“ mit `aria-pressed`) ruft über `useTheme` die Funktion `chooseTheme` auf. Sie wendet das Theme an und speichert es unter `lemmio:theme`. Ab dann hat die Wahl Vorrang vor der Systemeinstellung.
 4. **`useTheme`** liest den aktiven Wert mit `useSyncExternalStore` aus `data-theme`; `applyTheme` benachrichtigt die Abonnenten.
 
-**Speicher:** `lemmio:theme` ist vom Fortschritt (`lemmio:progress`) getrennt. Zurücksetzen des Fortschritts ändert das Theme nicht und umgekehrt. Alle Speicherzugriffe sind in `try/catch` gefasst; ohne Speicher gilt die Wahl nur für den Besuch.
+**Speicher:** `lemmio:theme` ist von Fortschritt (`lemmio:progress`) und Kartenstand (`lemmio:cards`) getrennt. Zurücksetzen des Fortschritts ändert weder Theme noch Kartenstand. Alle Speicherzugriffe sind in `try/catch` gefasst; ohne Speicher gilt die Wahl nur für den Besuch.
 
 **Farben:** `src/index.css` definiert die Design-Tokens als CSS-Variablen. Die Werte für Hell stehen in `:root`, `:root[data-theme='dark']` überschreibt sie. Komponenten verwenden nur Tokens (`--bg`, `--surface`, `--text`, `--muted`, `--border`, `--accent`, `--success`, `--danger`, `--warning` usw.), keine festen Farben. Der Kontrast jedes Text/Hintergrund-Paars liegt in beiden Themes bei mindestens 4,5:1 (WCAG 2.2 AA), Rahmen und Zustandsmarken bei mindestens 3:1.
 
@@ -117,12 +220,16 @@ Genau zwei Themes: `light` und `dark` (`Theme` in `src/theme/theme.ts`). Es gibt
 
 - `npm run build` führt `tsc -b` und `vite build` aus. KaTeX und React/Router liegen in eigenen Chunks (`vite.config.ts`), damit Browser sie über App-Updates hinweg zwischenspeichern.
 - `.github/workflows/ci.yml`: Lint, Tests, Build mit `BASE_PATH=/<repo>/`, Kopie von `index.html` nach `404.html`. Auf `main` folgt der Deploy nach GitHub Pages.
-- Der Dev-Container (`.devcontainer/`, `scripts/dev.sh`) ist in der [README](../README.md) beschrieben.
+- Der Dev-Container (`.devcontainer/`, `scripts/dev.sh`) ist in der [README](../README.md) beschrieben. `npm` läuft nur im Container; `scripts/dev.sh check` führt Lint, Tests und Build wie die CI aus.
 
 ## Entscheidungen, die man kennen sollte
 
 - **Keine Konten, kein Backend, kein Tracking.** Neue Funktionen dürfen nichts an Server senden.
-- **Zwei Datenspeicher, je ein Schlüssel:** `lemmio:progress` und `lemmio:theme`. Neue Schlüssel bekommen das Präfix `lemmio:`.
-- **Mathe-Kern ohne React.** Neue Logik für Aufgaben gehört dorthin, nicht in Komponenten.
-- **Eine Wahrheit für Texte:** Aussagen in Erklärtexten stehen in `$…$` und werden von den Tests bewiesen.
-- **Barrierefreiheit:** Zustände nie nur über Farbe (Zeichen und Text dazu), Touch-Ziele mindestens 44 px (`min-height: 2.75rem`), bedienbar ab 360 px Breite.
+- **Drei Datenspeicher, je ein Schlüssel:** `lemmio:progress`, `lemmio:cards` und `lemmio:theme`. Neue Schlüssel bekommen das Präfix `lemmio:`.
+- **Der Katalog ist die einzige Quelle der Struktur.** Routen, Navigation, Startseite und Formelsatz leiten sich daraus ab; „Einheit“ erscheint nirgends in der Oberfläche.
+- **Mathe-Kern ohne React.** Neue Logik für Aufgaben und Prüfungen gehört dorthin, nicht in Komponenten. Dasselbe gilt für die Logik der Widgets (`src/cards`).
+- **Zwei Register für Aufgaben.** Eine Aufgabenart, deren Antwort kein einzelner Term ist, bekommt ein eigenes Register und eine eigene Übung; sie wird nicht in `generators` gepresst.
+- **Eine Wahrheit für Texte:** Aussagen in Erklärtexten stehen in `$…$` und werden von den Tests bewiesen; Decks und Widgets werden von `validateDeck` geprüft.
+- **Animationen nur im Browser** (SVG, React, Web Animations API), immer mit `prefers-reduced-motion`.
+- **Barrierefreiheit:** Zustände nie nur über Farbe (Zeichen und Text dazu), Touch-Ziele mindestens 44 px (`min-height: 2.75rem`), bedienbar ab 360 px Breite, interaktive Elemente per Tastatur und Touch bedienbar, Änderungen über Live-Regionen angesagt.
+- **Lint-Falle (React-Compiler, `react-hooks/refs`):** Beim Rendern keine Ref-Callbacks in Hilfsfunktionen außerhalb des JSX-Returns erzeugen und keine Funktion aufrufen, der eine Closure mit Ref-Zugriff übergeben wird (z. B. Handler-Fabriken). Handler nur als Prop durchreichen; Elemente notfalls über `data-*`-Attribute finden (so im Flächenmodell).
