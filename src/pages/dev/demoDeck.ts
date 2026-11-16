@@ -3,7 +3,8 @@ import type { Deck } from '../../cards'
 /**
  * Demo deck for the card framework, shown at /dev/karten in the dev server
  * only. It uses every card feature at least once, including the three modes
- * of the area model; real decks arrive with the subtopics.
+ * of the area model and both modes of the balance; real decks arrive with
+ * the subtopics.
  */
 export const demoDeck: Deck = {
   id: 'dev/karten/demo',
@@ -134,6 +135,44 @@ export const demoDeck: Deck = {
         form: { kind: 'factored', sumFactors: 1 },
         explanation: 'Beide Summanden enthalten $3x$: $6x^2+9x = 3x(2x+3)$.',
       },
+    },
+    {
+      id: 'waage-schritte',
+      title: 'Gleichung als Waage',
+      // Equations are written without $ here: inside $…$ every "=" is checked as an identity of terms.
+      body: [
+        'Die Waage zeigt die Gleichung 3x + 2 = x + 8. Ein Kästchen wiegt x, ein kleines Gewicht 1.',
+        'Wer auf beiden Seiten dasselbe tut, hält die Waage im Gleichgewicht. Abziehen heißt hier: Ballons anhängen, die nach oben ziehen.',
+      ],
+      widget: { kind: 'balance', equation: '3x + 2 = x + 8', mode: 'steps', steps: ['| - x', '| - 2', '| : 2'] },
+      question: {
+        kind: 'choice',
+        prompt: 'Die Waage ist im Gleichgewicht. Was passiert, wenn du nur links 2 Gewichte wegnimmst?',
+        options: [
+          { text: 'Nichts, sie bleibt im Gleichgewicht.', feedback: 'Links fehlt dann etwas, rechts nicht.' },
+          { text: 'Die linke Seite wird leichter und geht nach oben.', correct: true },
+          { text: 'Die linke Seite geht nach unten.', feedback: 'Nach unten geht die schwerere Seite. Links wird es leichter.' },
+        ],
+        explanation: 'Nur wenn auf beiden Seiten dasselbe geschieht, bleibt die Waage im Gleichgewicht.',
+      },
+    },
+    {
+      id: 'waage-ballons',
+      title: 'Ballons',
+      body: [
+        'Hier steht 2x − 3 = x + 1. Die drei Ballons links ziehen die Schale um 3 nach oben.',
+        'Legst du auf beiden Seiten 3 Gewichte dazu, heben sich links Gewichte und Ballons auf.',
+      ],
+      widget: { kind: 'balance', equation: '2x - 3 = x + 1', mode: 'steps', steps: ['| + 3', '| - x'] },
+    },
+    {
+      id: 'waage-probieren',
+      title: 'Selbst umformen',
+      body: [
+        'Forme um, bis ein Kästchen allein liegt. Probiere auch aus, was passiert, wenn du nur eine Seite veränderst.',
+        'Mit der Tastatur: Mit Tab zur Auswahl, dort die Pfeiltasten, dann mit Tab zu den Umformungen.',
+      ],
+      widget: { kind: 'balance', equation: '2x + 1 = 7', mode: 'explore' },
     },
   ],
 }

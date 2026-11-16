@@ -24,10 +24,9 @@ export interface Card {
 
 /**
  * Interactive elements. Each kind has its own component (see
- * src/components/cards/CardWidgetView.tsx); new kinds such as the balance are
- * added to this union.
+ * src/components/cards/CardWidgetView.tsx); new kinds are added to this union.
  */
-export type CardWidget = TermStepsWidget | AreaModelWidget
+export type CardWidget = TermStepsWidget | AreaModelWidget | BalanceWidget
 
 /**
  * A transformation shown line by line: the start term, then `= term` per step
@@ -85,6 +84,44 @@ export interface AreaLength {
   min?: number
   max?: number
 }
+
+/**
+ * Balance: a linear equation as a pair of scales. A box weighs x, a small
+ * weight 1; negative terms are balloons that pull their pan up. Doing the
+ * same on both sides keeps the balance level, doing it on one side only tips
+ * it; dividing splits both pans into equal groups and keeps one. Logic and
+ * checks: src/cards/balance.ts.
+ */
+export interface BalanceWidget {
+  kind: 'balance'
+  /**
+   * The equation in input syntax, e.g. `3x + 2 = x + 8`: linear in one
+   * variable with whole numbers, at most 6 x pieces and 12 unit pieces per
+   * side. If it has exactly one solution, that must be a whole number ≥ 0
+   * (it is the weight of a box). Equations without or with infinitely many
+   * solutions work too: the balance then never or always is level.
+   */
+  equation: string
+  /**
+   * - `steps`: the given transformations are applied to both sides one by one.
+   * - `explore`: the learner picks transformations from a palette and applies
+   *   them to both sides or to one side only.
+   */
+  mode: BalanceMode
+  /**
+   * `steps` only: the transformations as written next to an equation, e.g.
+   * `['| - x', '| - 2', '| : 2']`. Allowed are `+ T` and `- T` (whole numbers
+   * and whole multiples of the variable), `: n` for n from 2 to 6 if all
+   * pieces split into n equal groups, and `· (-1)`.
+   */
+  steps?: string[]
+  /** `explore` only: the palette, same syntax as `steps`. Default: `+ 1`, `- 1`, `+ x`, `- x`, `: 2`, `: 3`. */
+  operations?: string[]
+  /** Accessible name of the lines below the figure. Default: "Umformungen". */
+  label?: string
+}
+
+export type BalanceMode = 'steps' | 'explore'
 
 export type CardQuestion = ChoiceQuestion | TermQuestion
 

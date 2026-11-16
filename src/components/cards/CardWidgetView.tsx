@@ -1,5 +1,6 @@
 import type { CardWidget } from '../../cards'
 import AreaModelView from './AreaModelView'
+import BalanceView from './BalanceView'
 import TermStepsView from './TermStepsView'
 
 /**
@@ -15,5 +16,7 @@ export default function CardWidgetView({ widget }: { widget: CardWidget }) {
       return <TermStepsView widget={widget} />
     case 'area-model':
       return <AreaModelView widget={widget} />
+    case 'balance':
+      return <BalanceView widget={widget} />
   }
 }

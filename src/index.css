@@ -1310,6 +1310,160 @@ p .tex {
   gap: 0.35rem;
 }
 
+/* Balance: an equation as a pair of scales; figure margins come from .widget */
+.balance-svg {
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+  font-family: var(--font-sans);
+}
+
+.balance-base,
+.balance-pivot,
+.balance-plate {
+  fill: var(--line-strong);
+}
+
+.balance-post,
+.balance-beam line {
+  stroke: var(--line-strong);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.balance-cord,
+.balance-string {
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+/* Weights are squares, balloons are ellipses with a string: the kinds never differ by colour alone. */
+.balance-piece rect,
+.balance-piece ellipse {
+  stroke-width: 1.5;
+}
+
+.balance-piece.is-box rect {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.balance-piece.is-unit rect {
+  fill: var(--surface-2);
+  stroke: var(--line-strong);
+}
+
+.balance-piece.is-box-balloon ellipse,
+.balance-piece.is-unit-balloon ellipse {
+  fill: var(--pink-soft);
+  stroke: var(--pink);
+}
+
+.balance-piece text {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--text);
+  pointer-events: none;
+}
+
+.balance-piece.is-unit text,
+.balance-piece.is-unit-balloon text {
+  font-size: 10px;
+}
+
+.balance-piece.is-box-balloon text {
+  font-size: 11px;
+}
+
+/* On their way out: pairs that cancel and groups that do not stay. */
+.balance-piece.is-leaving rect,
+.balance-piece.is-leaving ellipse {
+  stroke-dasharray: 3 2;
+  opacity: 0.5;
+}
+
+.balance-piece.is-leaving text {
+  opacity: 0.5;
+}
+
+.balance-strike {
+  stroke: var(--danger);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.balance-group {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+
+.balance-group.is-leaving {
+  stroke: var(--line-strong);
+  opacity: 0.6;
+}
+
+.balance-caption {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.balance-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.balance-target legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.balance-target-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.balance-target-option input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.balance-key {
+  min-width: 3.5rem;
+}
+
+.balance-status {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.85rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+}
+
+/* The beam turns and the pans follow; .is-still is set when the app is asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .balance-svg:not(.is-still) .balance-beam,
+  .balance-svg:not(.is-still) .balance-pan {
+    transition: transform 0.4s ease-in-out;
+  }
+}
+
 .question {
   margin-top: 1rem;
   padding-top: 1rem;
