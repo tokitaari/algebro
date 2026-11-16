@@ -891,6 +891,36 @@ p .tex {
   margin-top: 0;
 }
 
+/* Equation practice: the learner's own lines with chips, entry with three fields and one row of keys */
+
+.equation-work {
+  margin: 0.75rem 0 1rem;
+}
+
+.solution-chips {
+  grid-column: 2;
+  margin-top: 0.3rem;
+}
+
+.equation-field + .equation-field {
+  margin-top: 0.75rem;
+}
+
+.equation-set {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.equation-entry .math-keys {
+  margin-top: 1rem;
+}
+
+.math-key-wide {
+  grid-column: span 2;
+  font-size: 1rem;
+}
+
 /* Card decks: path of cards, one card at a time, questions, widgets */
 
 .card-path {

@@ -1,18 +1,19 @@
 import { Link, useParams } from 'react-router-dom'
 import Breadcrumb from '../components/Breadcrumb'
 import CardDeck from '../components/cards/CardDeck'
+import EquationPractice from '../components/EquationPractice'
 import FormulaList from '../components/FormulaList'
 import Practice from '../components/Practice'
 import WorkedExampleCard from '../components/WorkedExampleCard'
 import { findSubtopic } from '../catalog'
 import { findContent, findFormula } from '../content'
-import { isTermTopic } from '../math'
+import { isEquationTopic, isTermTopic } from '../math'
 import NotFound from './NotFound'
 
 /**
  * A subtopic at `/area/topic/subtopic`: explanation as a card deck, worked
- * examples, formulas and the practice area. Equation subtopics have no
- * practice yet; the line-by-line input follows separately.
+ * examples, formulas and the practice area (terms are answered in one field,
+ * equations are solved line by line).
  */
 export default function TopicPage() {
   const params = useParams()
@@ -59,14 +60,8 @@ export default function TopicPage() {
       </section>
 
       {/* Keyed by id: switching subtopics starts a fresh series instead of reusing the old state. */}
-      {isTermTopic(id) ? (
-        <Practice key={id} topic={id} />
-      ) : (
-        <section aria-labelledby="uebung" className="panel practice">
-          <h2 id="uebung">Übung</h2>
-          <p>Die Übungsaufgaben zu diesem Teilthema folgen bald. Bis dahin kannst du die Beispiele oben Schritt für Schritt nachrechnen.</p>
-        </section>
-      )}
+      {isTermTopic(id) && <Practice key={id} topic={id} />}
+      {isEquationTopic(id) && <EquationPractice key={id} topic={id} />}
     </>
   )
 }

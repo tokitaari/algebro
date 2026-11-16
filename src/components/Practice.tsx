@@ -1,7 +1,6 @@
-import { useEffect, useId, useRef, useState, type FormEvent, type RefObject } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { generateSeries, toLatex, toText, type Rng, type TopicId } from '../math'
 import {
-  countCorrect,
   createSession,
   currentTask,
   finishedBetween,
@@ -18,6 +17,8 @@ import { useTopicProgress } from '../practice/useTopicProgress'
 import Chip from './Chip'
 import InputEcho from './InputEcho'
 import MathInput from './MathInput'
+import PracticeProgress from './PracticeProgress'
+import SeriesSummary from './SeriesSummary'
 import SkillPath from './SkillPath'
 import SolutionSteps from './SolutionSteps'
 import Tex from './Tex'
@@ -35,7 +36,6 @@ interface PracticeProps {
 export default function Practice({ topic, rng = Math.random }: PracticeProps) {
   const [session, setSession] = useState(() => createSession(generateSeries(topic, rng)))
   const [input, setInput] = useState('')
-  const [confirmReset, setConfirmReset] = useState(false)
   const { progress, saveFailed, record, reset } = useTopicProgress(topic)
 
   const inputId = useId()
@@ -92,7 +92,6 @@ export default function Practice({ topic, rng = Math.random }: PracticeProps) {
 
   const onReset = () => {
     reset()
-    setConfirmReset(false)
     startSeries()
   }
 
@@ -100,39 +99,10 @@ export default function Practice({ topic, rng = Math.random }: PracticeProps) {
     <section aria-labelledby="uebung" className="panel practice">
       <h2 id="uebung">Übung</h2>
 
-      <div className="practice-progress">
-        <p>
-          {progress.answered === 0
-            ? 'Noch keine Aufgabe gelöst.'
-            : `Bisher: ${progress.correct} von ${progress.answered} richtig.`}
-          {progress.lastSeries &&
-            ` Letzte Serie: ${progress.lastSeries.correct} von ${progress.lastSeries.total} richtig.`}
-        </p>
-        {saveFailed && (
-          <p className="practice-warning" role="alert">
-            Dein Browser erlaubt kein Speichern. Der Fortschritt geht beim Neuladen verloren.
-          </p>
-        )}
-        {progress.answered > 0 &&
-          (confirmReset ? (
-            <p className="practice-confirm">
-              Fortschritt in diesem Teilthema löschen und eine neue Serie beginnen?{' '}
-              <button type="button" className="btn btn-danger" onClick={onReset}>
-                Ja, zurücksetzen
-              </button>{' '}
-              <button type="button" className="btn btn-secondary" onClick={() => setConfirmReset(false)}>
-                Abbrechen
-              </button>
-            </p>
-          ) : (
-            <button type="button" className="btn btn-secondary" onClick={() => setConfirmReset(true)}>
-              Fortschritt zurücksetzen
-            </button>
-          ))}
-      </div>
+      <PracticeProgress progress={progress} saveFailed={saveFailed} onReset={onReset} />
 
       {over || !task ? (
-        <SeriesSummary session={session} summaryRef={summaryRef} onRestart={startSeries} />
+        <SeriesSummary series={session} summaryRef={summaryRef} onRestart={startSeries} />
       ) : (
         <div className="practice-task">
           <SkillPath
@@ -246,27 +216,4 @@ function FeedbackMessage({ feedback }: { feedback: Feedback }) {
         </div>
       )
   }
-}
-
-function SeriesSummary({
-  session,
-  summaryRef,
-  onRestart,
-}: {
-  session: Session
-  summaryRef: RefObject<HTMLHeadingElement | null>
-  onRestart: () => void
-}) {
-  const total = session.tasks.length
-  return (
-    <div className="practice-summary">
-      <h3 ref={summaryRef} tabIndex={-1}>
-        Serie geschafft: {countCorrect(session)} von {total} richtig
-      </h3>
-      <SkillPath total={total} outcomes={session.outcomes} label="Ergebnis je Aufgabe" />
-      <button type="button" className="btn btn-primary" onClick={onRestart}>
-        Neue Serie
-      </button>
-    </div>
-  )
 }
