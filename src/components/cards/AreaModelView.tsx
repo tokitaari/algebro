@@ -55,12 +55,11 @@ const CELL_KIND = ['plus', 'minus', 'back'] as const
 
 type Focus = { kind: 'cell'; index: number } | { kind: 'side'; side: AreaSide } | { kind: 'step' }
 
-function onActivate(action: () => void) {
-  return (e: KeyboardEvent<SVGGElement>) => {
-    if (e.key !== 'Enter' && e.key !== ' ') return
-    e.preventDefault()
-    action()
-  }
+/** Enter or Space on an SVG button; prevents the default (scrolling) when it is one. */
+function isActivation(e: KeyboardEvent<SVGGElement>): boolean {
+  if (e.key !== 'Enter' && e.key !== ' ') return false
+  e.preventDefault()
+  return true
 }
 
 /**
@@ -321,7 +320,13 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
         tabIndex={interactive ? 0 : undefined}
         aria-label={cellLabel(cell, shown)}
         onClick={interactive ? () => onCell(cell.index) : undefined}
-        onKeyDown={interactive ? onActivate(() => onCell(cell.index)) : undefined}
+        onKeyDown={
+          interactive
+            ? (e) => {
+                if (isActivation(e)) onCell(cell.index)
+              }
+            : undefined
+        }
       >
         <rect x={rect.x * k} y={rect.y * k} width={rect.width * k} height={rect.height * k} fill={pattern} />
         {fits && (
@@ -412,7 +417,13 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
         tabIndex={interactive ? 0 : undefined}
         aria-label={interactive ? `${SIDE_LABELS[side]} aufdecken` : `${SIDE_LABELS[side]}: ${sideText(model, side)}`}
         onClick={interactive ? () => onSide(side) : undefined}
-        onKeyDown={interactive ? onActivate(() => onSide(side)) : undefined}
+        onKeyDown={
+          interactive
+            ? (e) => {
+                if (isActivation(e)) onSide(side)
+              }
+            : undefined
+        }
       >
         {interactive && hits}
         {items}
