@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { allSubtopics, subtopicPath } from './catalog'
+import { demoDeck } from './pages/dev/demoDeck'
 import { routes } from './routes'
 
 function renderAt(path: string) {
@@ -92,7 +93,8 @@ describe('Routing and layout', () => {
     renderAt('/dev/karten')
     expect(await screen.findByRole('heading', { level: 1, name: 'Karten-Demo' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 3, name: 'Worum geht es?' })).toBeInTheDocument()
-    expect(screen.getByText('Karte 1 von 9')).toBeInTheDocument()
+    // The demo deck grows with every new widget, so the count is taken from the deck.
+    expect(screen.getByText(`Karte 1 von ${demoDeck.cards.length}`)).toBeInTheDocument()
   })
 
   it('shows "not found" for nested unknown paths', () => {
