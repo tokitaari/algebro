@@ -1,4 +1,4 @@
-import { TOPIC_IDS, type TopicId } from '../math'
+import { ALL_TOPIC_IDS, type TopicId } from '../math'
 
 /** Result of one completed series, e.g. 8 of 10. */
 export interface SeriesResult {
@@ -72,7 +72,7 @@ function readAll(storage: Storage | null): StoredTopics {
     const data: unknown = JSON.parse(raw)
     if (!isRecord(data) || data.version !== STORAGE_VERSION || !isRecord(data.topics)) return {}
     const topics: StoredTopics = {}
-    for (const id of TOPIC_IDS) {
+    for (const id of ALL_TOPIC_IDS) {
       const parsed = parseTopicProgress(data.topics[id])
       if (parsed) topics[id] = parsed
     }

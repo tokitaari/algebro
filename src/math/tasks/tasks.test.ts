@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { allSubtopics } from '../../catalog'
 import { checkAnswer } from '../check'
+import { EQUATION_TOPIC_IDS } from '../equations'
 import { polynomialToExpr, toPolynomial } from '../normalize'
 import { parse } from '../parser'
 import { Polynomial } from '../polynomial'
@@ -30,8 +31,8 @@ function sample(topic: (typeof TOPIC_IDS)[number], seed: number, count = SAMPLES
 }
 
 describe('task generators', () => {
-  it('cover exactly the subtopics of the app', () => {
-    expect([...TOPIC_IDS].sort()).toEqual(allSubtopics().map((s) => s.id).sort())
+  it('cover, together with the equation generators, exactly the subtopics of the app', () => {
+    expect([...TOPIC_IDS, ...EQUATION_TOPIC_IDS].sort()).toEqual(allSubtopics().map((s) => s.id).sort())
   })
 
   describe.each(TOPIC_IDS)('%s', (topic) => {

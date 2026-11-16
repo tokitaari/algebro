@@ -36,6 +36,15 @@ describe('saveProgress / loadProgress', () => {
     expect(loadProgress('algebra/terme/binomische-formeln')).toEqual(EMPTY_PROGRESS)
   })
 
+  it('keeps the progress of equation subtopics next to the term subtopics', () => {
+    const p = { answered: 4, correct: 3, lastSeries: null }
+    expect(saveProgress('algebra/lineare-gleichungen/sonderfaelle', p)).toBe(true)
+    saveProgress('algebra/terme/faktorisieren', p)
+    expect(loadProgress('algebra/lineare-gleichungen/sonderfaelle')).toEqual(p)
+    expect(loadProgress('algebra/lineare-gleichungen/umformen')).toEqual(EMPTY_PROGRESS)
+    expect(loadProgress('algebra/terme/faktorisieren')).toEqual(p)
+  })
+
   it('resetting one subtopic leaves the others and removes the entry when nothing is left', () => {
     const p = { answered: 2, correct: 2, lastSeries: null }
     saveProgress('algebra/terme/ausmultiplizieren', p)

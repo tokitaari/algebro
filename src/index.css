@@ -1072,6 +1072,31 @@ p .tex {
   font-size: 0.85rem;
 }
 
+/* Equation steps: the operation next to its line, the intermediate line with highlighted operands */
+.equation-op-note {
+  margin-left: 0.6rem;
+}
+
+.equation-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.3em;
+}
+
+.equation-operand {
+  padding: 0 0.25em;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.solution-step.is-intermediate .solution-expr {
+  border-left: 3px dashed var(--accent);
+  padding-left: 0.5rem;
+}
+
 /* Area model: partial products as a rectangle (sketch or to scale); figure margins come from .widget */
 .area-svg {
   display: block;

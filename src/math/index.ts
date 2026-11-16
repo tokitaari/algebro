@@ -26,6 +26,14 @@ export { MAX_EXPONENT, MAX_INPUT_LENGTH, parse } from './parser'
 export { Polynomial } from './polynomial'
 export { toLatex, toText } from './printer'
 export { createRng, type Rng } from './random'
+export {
+  ALL_TOPIC_IDS,
+  isEquationTopic,
+  isTermTopic,
+  type AnyTopicId,
+  type EquationTopicId,
+  type TermTopicId,
+} from './topics'
 export { Rational } from './rational'
 export {
   buildBinomialFactorTask,

@@ -3,6 +3,7 @@ import { areEquivalent, checkAnswer, parse, type Expr } from '../math'
 import { areaModelProblems, areaModelTerms, buildAreaModel } from './areaModel'
 import { balanceProblems, balanceTerms, buildBalance } from './balance'
 import { termQuestionKey } from './deck'
+import { buildEquationSteps, equationStepsLatex, equationStepsProblems, equationStepsTerms } from './equationSteps'
 import { CARD_ID, DECK_ID } from './storage'
 import type { Card, CardQuestion, CardWidget, Deck } from './types'
 
@@ -55,6 +56,8 @@ function widgetProblems(widget: CardWidget): string[] {
       return areaModelProblems(widget)
     case 'balance':
       return balanceProblems(widget)
+    case 'equation-steps':
+      return equationStepsProblems(widget)
   }
 }
 
@@ -98,8 +101,26 @@ function cardTerms(card: Card): string[] {
     terms.push(...areaModelTerms(buildAreaModel(widget)))
   }
   if (widget?.kind === 'balance' && balanceProblems(widget).length === 0) terms.push(...balanceTerms(buildBalance(widget)))
+  if (widget?.kind === 'equation-steps' && equationStepsProblems(widget).length === 0) {
+    terms.push(...equationStepsTerms(widget))
+  }
   if (card.question?.kind === 'term' && card.question.term !== undefined) terms.push(card.question.term)
   return terms
+}
+
+/**
+ * LaTeX that a deck shows besides terms and markup, e.g. operations,
+ * intermediate lines and solution sets of equation steps. Content tests
+ * render it with KaTeX in strict mode. Widgets with problems are skipped.
+ */
+export function deckLatex(deck: Deck): string[] {
+  return deck.cards.flatMap((card) => {
+    const widget = card.widget
+    if (widget?.kind === 'equation-steps' && equationStepsProblems(widget).length === 0) {
+      return equationStepsLatex(buildEquationSteps(widget))
+    }
+    return []
+  })
 }
 
 /** Every markup text of a deck: card texts, step notes, prompts, options, option feedback, explanations. */
@@ -109,7 +130,9 @@ export function deckMarkup(deck: Deck): Markup[] {
 
 function cardMarkup(card: Card): Markup[] {
   const texts = [...card.body]
-  if (card.widget?.kind === 'term-steps') texts.push(...card.widget.steps.flatMap((s) => (s.note ? [s.note] : [])))
+  const widget = card.widget
+  if (widget?.kind === 'term-steps') texts.push(...widget.steps.flatMap((s) => (s.note ? [s.note] : [])))
+  if (widget?.kind === 'equation-steps') texts.push(...widget.steps.flatMap((s) => (s.note ? [s.note] : [])))
   const q = card.question
   if (q) {
     texts.push(q.prompt)
