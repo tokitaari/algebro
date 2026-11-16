@@ -2,7 +2,8 @@ import type { Deck } from '../../cards'
 
 /**
  * Demo deck for the card framework, shown at /dev/karten in the dev server
- * only. It uses every card feature once; real decks arrive with the subtopics.
+ * only. It uses every card feature at least once, including the three modes
+ * of the area model; real decks arrive with the subtopics.
  */
 export const demoDeck: Deck = {
   id: 'dev/karten/demo',
@@ -66,6 +67,59 @@ export const demoDeck: Deck = {
         answer: 'x^2+6x+8',
         form: { kind: 'expanded' },
         explanation: 'Die vier Produkte sind $x^2$, $4x$, $2x$ und $8$; zusammengefasst $x^2+6x+8$.',
+      },
+    },
+    {
+      id: 'flaechenmodell',
+      title: 'Als Fläche',
+      body: [
+        'Ein Produkt aus zwei Klammern ist die Fläche eines Rechtecks: Die Summanden teilen die Seiten auf, jede Teilfläche ist ein Produkt.',
+        'Ein negativer Summand ist ein Streifen, der am Ende der Seite abgeschnitten wird.',
+      ],
+      widget: { kind: 'area-model', first: ['x', '3'], second: ['x', '-5'], mode: 'expand' },
+    },
+    {
+      id: 'dritte-binomische-formel',
+      title: 'Was sich aufhebt',
+      body: ['Dieses Rechteck ist maßstabsgetreu gezeichnet, mit der Länge 5 für $a$ und 2 für $b$.'],
+      widget: { kind: 'area-model', first: ['a', 'b'], second: ['a', '-b'], mode: 'expand', lengths: { a: { value: 5 }, b: { value: 2 } } },
+      question: {
+        kind: 'choice',
+        prompt: 'Welche Teilflächen heben sich bei $(a+b)(a-b)$ auf?',
+        options: [
+          { text: '$a^2$ und $-b^2$', feedback: 'Diese beiden bleiben übrig: $(a+b)(a-b) = a^2-b^2$.' },
+          { text: '$-ab$ und $ab$', correct: true },
+        ],
+        explanation: 'Der Streifen $-ab$ nimmt genau so viel weg, wie die Teilfläche $ab$ dazugibt.',
+      },
+    },
+    {
+      id: 'quadrat-ziehen',
+      title: 'Ziehen und prüfen',
+      body: [
+        'Ziehe die Punkte an den Kanten. Die Formel $(a-b)^2 = a^2-2ab+b^2$ stimmt für jede Länge.',
+        'Mit der Tastatur: Punkt mit Tab wählen, dann die Pfeiltasten.',
+      ],
+      widget: {
+        kind: 'area-model',
+        first: ['a', '-b'],
+        second: ['a', '-b'],
+        mode: 'explore',
+        lengths: { a: { value: 6, min: 4, max: 9 }, b: { value: 2, min: 1, max: 3 } },
+      },
+    },
+    {
+      id: 'flaeche-rueckwaerts',
+      title: 'Rückwärts gedacht',
+      body: ['Die Teilflächen sind gegeben. Welche Seiten hat das Rechteck?'],
+      widget: { kind: 'area-model', first: ['x', '3'], second: ['x', '3'], mode: 'factor' },
+      question: {
+        kind: 'term',
+        prompt: 'Schreibe als Produkt:',
+        term: 'x^2+6x+9',
+        answer: '(x+3)^2',
+        form: { kind: 'factored', sumFactors: 2 },
+        explanation: 'Beide Seiten sind $x+3$: $x^2+6x+9 = (x+3)^2$.',
       },
     },
     {

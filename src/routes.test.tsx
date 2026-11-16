@@ -92,7 +92,7 @@ describe('Routing and layout', () => {
     renderAt('/dev/karten')
     expect(await screen.findByRole('heading', { level: 1, name: 'Karten-Demo' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 3, name: 'Worum geht es?' })).toBeInTheDocument()
-    expect(screen.getByText('Karte 1 von 5')).toBeInTheDocument()
+    expect(screen.getByText('Karte 1 von 9')).toBeInTheDocument()
   })
 
   it('shows "not found" for nested unknown paths', () => {
