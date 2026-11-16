@@ -219,7 +219,7 @@ export function operationToText(operation: Operation): string {
 
 /** LaTeX for KaTeX, e.g. `\mid\; {-}\, 3x`. */
 export function operationToLatex(operation: Operation): string {
-  if (operation.kind === 'swap') return '\\mid\; \\rightleftarrows'
-  if (operation.kind === 'simplify') return `\\mid\; \\text{${SIMPLIFY_LABEL}}`
-  return `\\mid\; ${LATEX_SIGNS[operation.kind]}\\, ${operandWith(toLatex, operation.operand)}`
+  if (operation.kind === 'swap') return '\\mid\\; \\rightleftarrows'
+  if (operation.kind === 'simplify') return `\\mid\\; \\text{${SIMPLIFY_LABEL}}`
+  return `\\mid\\; ${LATEX_SIGNS[operation.kind]}\\, ${operandWith(toLatex, operation.operand)}`
 }

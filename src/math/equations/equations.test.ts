@@ -185,10 +185,10 @@ describe('readOperation', () => {
   })
 
   it('prints LaTeX', () => {
-    expect(operationToLatex(operation('| - 3x'))).toBe('\\mid\; {-}\\, 3x')
-    expect(operationToLatex(operation('| : (-2)'))).toBe('\\mid\; {:}\\, (-2)')
-    expect(operationToLatex({ kind: 'swap' })).toBe('\\mid\; \\rightleftarrows')
-    expect(operationToLatex({ kind: 'simplify' })).toBe('\\mid\; \\text{Term umformen}')
+    expect(operationToLatex(operation('| - 3x'))).toBe('\\mid\\; {-}\\, 3x')
+    expect(operationToLatex(operation('| : (-2)'))).toBe('\\mid\\; {:}\\, (-2)')
+    expect(operationToLatex({ kind: 'swap' })).toBe('\\mid\\; \\rightleftarrows')
+    expect(operationToLatex({ kind: 'simplify' })).toBe('\\mid\\; \\text{Term umformen}')
   })
 })
 
