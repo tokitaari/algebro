@@ -1,4 +1,4 @@
-/** Machine-readable reason why an input could not be read as a term. */
+/** Machine-readable reason why an input could not be read as a term, equation, operation or solution set. */
 export type TermErrorCode =
   | 'empty'
   | 'too-long'
@@ -17,6 +17,15 @@ export type TermErrorCode =
   | 'double-exponent'
   | 'division-by-term'
   | 'division-by-zero'
+  // Equations (src/math/equations)
+  | 'missing-equals'
+  | 'multiple-equals'
+  | 'missing-operation'
+  | 'ambiguous-operation'
+  | 'nonlinear-operation'
+  | 'multiply-by-term'
+  | 'multiply-by-zero'
+  | 'invalid-solution-set'
 
 /**
  * Error for invalid input. `message` is German and meant for the learner;
