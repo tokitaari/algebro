@@ -450,36 +450,6 @@ h1 {
   margin: 1.25rem 0 0.5rem;
 }
 
-.explanation-section:first-of-type h3 {
-  margin-top: 0;
-}
-
-.procedure {
-  padding-left: 1.5rem;
-}
-
-.procedure li + li {
-  margin-top: 0.25rem;
-}
-
-.pitfalls {
-  margin-top: 1.25rem;
-  padding: 0.75rem 1rem;
-  border-left: 4px solid var(--warning);
-  background: var(--warning-bg);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.pitfalls h3 {
-  margin-top: 0;
-  color: var(--warning);
-}
-
-.pitfalls ul {
-  margin: 0;
-  padding-left: 1.25rem;
-}
-
 .example + .example {
   margin-top: 1.25rem;
   padding-top: 1.25rem;
@@ -590,9 +560,7 @@ h1 {
 }
 
 /* Inline terms in prose never break inside the term. */
-p .tex,
-.procedure .tex,
-.pitfalls .tex {
+p .tex {
   white-space: nowrap;
 }
 
