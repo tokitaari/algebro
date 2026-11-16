@@ -11,11 +11,15 @@
  *
  * The build*Task functions create the same tasks with fixed numbers, e.g. for
  * worked examples in the explanations.
+ *
+ * Linear equations are solved line by line and have their own tasks, checks
+ * and generators; see ./equations.
  */
 export * as build from './ast'
 export type { Expr, Span } from './ast'
 export { checkAnswer, readTerm, type AnswerKey, type CheckResult, type ReadResult } from './check'
 export { TermError, type TermErrorCode, type TermErrorInfo } from './errors'
+export * from './equations'
 export { checkForm, isExpanded, type FormHint, type FormHintCode, type FormRequirement } from './form'
 export { areEquivalent, polynomialToExpr, toPolynomial } from './normalize'
 export { MAX_EXPONENT, MAX_INPUT_LENGTH, parse } from './parser'
