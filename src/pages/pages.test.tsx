@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { catalog } from '../catalog'
-import { allFormulas, formulaGroupsOf, topicContent } from '../content'
-import { TOPIC_IDS } from '../math'
+import { allEntries, formulaGroupsOf, isEquationTask, topicContent } from '../content'
+import { ALL_TOPIC_IDS, EQUATION_TOPIC_IDS, TOPIC_IDS } from '../math'
 import { routes } from '../routes'
 
 function renderAt(path: string) {
@@ -18,7 +18,7 @@ beforeEach(() => {
 })
 
 describe('topic page', () => {
-  it.each(TOPIC_IDS)('%s shows explanation, worked examples and formulas', (topic) => {
+  it.each(ALL_TOPIC_IDS)('%s shows explanation, worked examples and formulas', (topic) => {
     const content = topicContent[topic]
     const { container } = renderAt(`/${topic}`)
 
@@ -30,7 +30,8 @@ describe('topic page', () => {
     content.examples.forEach((example, i) => {
       const card = within(examples.getByRole('article', { name: `Beispiel ${i + 1}: ${example.title}` }))
       const steps = within(card.getByRole('list', { name: 'Lösungsweg' })).getAllByRole('listitem')
-      expect(steps).toHaveLength(example.task.steps.length + 1)
+      // Equations: the first line, one line per step and the solution set.
+      expect(steps).toHaveLength(example.task.steps.length + (isEquationTask(example.task) ? 2 : 1))
       for (const step of example.task.steps) if (step.note) expect(card.getByText(step.note)).toBeInTheDocument()
     })
 
@@ -49,6 +50,22 @@ describe('topic page', () => {
     expect(practice.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
     expect(practice.getByLabelText('Deine Antwort')).toBeInTheDocument()
     expect(practice.getByRole('button', { name: 'Prüfen' })).toBeInTheDocument()
+  })
+
+  it.each(EQUATION_TOPIC_IDS)('%s announces the practice instead of showing a task for now', (topic) => {
+    renderAt(`/${topic}`)
+    const practice = within(screen.getByRole('region', { name: 'Übung' }))
+    expect(practice.getByText(/folgen bald/)).toBeInTheDocument()
+    expect(practice.queryByRole('button', { name: 'Prüfen' })).not.toBeInTheDocument()
+  })
+
+  it('shows a worked equation in school notation with the solution set at the end', () => {
+    renderAt('/algebra/lineare-gleichungen/umformen')
+    const card = within(screen.getByRole('article', { name: 'Beispiel 1: x auf beiden Seiten' }))
+    const lines = within(card.getByRole('list', { name: 'Lösungsweg' })).getAllByRole('listitem')
+    expect(lines.at(-1)).toHaveClass('solution-result')
+    expect(lines.at(-1)).toHaveTextContent('Die Gleichung hat genau eine Lösung: x = 4.')
+    expect(card.getByText('Alle Terme mit x auf die linke Seite bringen.')).toHaveClass('equation-op-note')
   })
 
   it('starts a fresh series when another subtopic is opened', async () => {
@@ -83,7 +100,7 @@ describe('formula sheet', () => {
         expect(region.getAllByRole('term')).toHaveLength(groups.reduce((n, g) => n + g.formulas.length, 0))
       }
     }
-    expect(container.querySelectorAll('.katex-display')).toHaveLength(allFormulas.length)
+    expect(container.querySelectorAll('.katex-display')).toHaveLength(allEntries.length)
     expect(container.querySelector('.katex-error')).toBeNull()
   })
 

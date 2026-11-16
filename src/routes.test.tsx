@@ -18,7 +18,7 @@ describe('Routing and layout', () => {
   it('shows all subtopics on the home page', () => {
     renderAt('/')
     expect(screen.getByRole('heading', { level: 1, name: /Willkommen bei Lemmio/ })).toBeInTheDocument()
-    expect(subtopics).toHaveLength(3)
+    expect(subtopics).toHaveLength(6)
     const main = within(screen.getByRole('main'))
     for (const { subtopic } of subtopics) {
       expect(main.getByRole('link', { name: new RegExp(subtopic.title) })).toBeInTheDocument()
@@ -38,6 +38,9 @@ describe('Routing and layout', () => {
       '/algebra/terme/ausmultiplizieren',
       '/algebra/terme/binomische-formeln',
       '/algebra/terme/faktorisieren',
+      '/algebra/lineare-gleichungen/umformen',
+      '/algebra/lineare-gleichungen/klammern',
+      '/algebra/lineare-gleichungen/sonderfaelle',
     ])
   })
 
@@ -66,7 +69,7 @@ describe('Routing and layout', () => {
     expect(screen.getByRole('contentinfo')).toHaveTextContent('Lemmio · Algebra · Dein Fortschritt bleibt in deinem Browser.')
   })
 
-  it.each(['/', '/formelsatz', '/algebra/terme/ausmultiplizieren'])('does not mention "Einheit" on %s', (path) => {
+  it.each(['/', '/formelsatz', '/algebra/terme/ausmultiplizieren', '/algebra/lineare-gleichungen/umformen'])('does not mention "Einheit" on %s', (path) => {
     renderAt(path)
     expect(document.body).not.toHaveTextContent(/einheit/i)
   })

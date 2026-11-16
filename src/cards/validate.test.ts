@@ -5,7 +5,7 @@ import { chainToLatex, splitChain, splitMarkup, termToLatex } from '../content/m
 import { parse, toPolynomial } from '../math'
 import { demoDeck } from '../pages/dev/demoDeck'
 import type { Card, Deck } from './types'
-import { deckMarkup, deckTerms, validateDeck } from './validate'
+import { deckLatex, deckMarkup, deckTerms, validateDeck } from './validate'
 
 const deckOf = (...cards: Card[]): Deck => ({ id: 'test/deck/a', cards })
 const card = (extra: Partial<Card> = {}): Card => ({ id: 'karte', title: 'Titel', body: ['Text'], ...extra })
@@ -83,6 +83,34 @@ describe('balance widget', () => {
     expect(validateDeck(deckOf(stuck))).toEqual(['card "karte": balance: step ": 2" does not work on 3x + 2 = x + 8 (not-divisible)'])
     const fine = card({ widget: { kind: 'balance', equation: '3x + 2 = x + 8', mode: 'steps', steps: ['| - x', '| - 2', '| : 2'] } })
     expect(validateDeck(deckOf(fine))).toEqual([])
+  })
+})
+
+describe('equation steps widget', () => {
+  it('reports the problems of the equation steps with the card', () => {
+    const wrong = card({
+      widget: { kind: 'equation-steps', start: '2x = 6', steps: [{ operation: '| : 2', equation: 'x = 2' }] },
+    })
+    expect(validateDeck(deckOf(wrong))).toEqual([
+      'card "karte": equation-steps: "x = 2" does not follow from the line before with "| : 2" (wrong)',
+    ])
+  })
+
+  it('collects the sides as terms, the notes as markup and the other LaTeX separately', () => {
+    const deck = deckOf(
+      card({
+        widget: {
+          kind: 'equation-steps',
+          start: '2x = 6',
+          steps: [{ operation: '| : 2', equation: 'x = 3', note: 'durch $2$ teilen' }],
+          solution: 'L = {3}',
+        },
+      }),
+    )
+    expect(deckTerms(deck)).toEqual(['2x', '6', 'x', '3'])
+    expect(deckMarkup(deck)).toEqual(['Text', 'durch $2$ teilen'])
+    expect(deckLatex(deck)).toEqual(['2x = 6', '\\mid\\; {:}\\, 2', 'x = 3', '2x {:}\\, 2 = 6 {:}\\, 2', '\\mathbb{L} = \\{3\\}'])
+    for (const latex of deckLatex(deck)) expect(() => renderStrict(latex)).not.toThrow()
   })
 })
 

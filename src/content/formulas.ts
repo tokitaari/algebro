@@ -1,5 +1,5 @@
-import { termToLatex } from './markup'
-import type { Formula, FormulaGroup } from './types'
+import { chainToLatex, termToLatex } from './markup'
+import type { Formula, FormulaGroup, SheetEntry } from './types'
 
 /**
  * Formula sheet per topic, keyed by "area/topic" as in the catalog. Topics
@@ -42,11 +42,80 @@ export const formulaSheets: Readonly<Record<string, readonly FormulaGroup[]>> = 
       ],
     },
   ],
+  'algebra/lineare-gleichungen': [
+    {
+      title: 'Äquivalenzumformungen',
+      formulas: [
+        { kind: 'equivalence', id: 'equation-add', name: 'Auf beiden Seiten addieren', from: 'a = b', to: 'a + c = b + c' },
+        {
+          kind: 'equivalence',
+          id: 'equation-subtract',
+          name: 'Auf beiden Seiten subtrahieren',
+          from: 'a = b',
+          to: 'a - c = b - c',
+        },
+        {
+          kind: 'equivalence',
+          id: 'equation-multiply',
+          name: 'Beide Seiten mit derselben Zahl multiplizieren',
+          from: 'a = b',
+          to: 'a·c = b·c',
+          condition: 'c ≠ 0',
+        },
+        {
+          kind: 'equivalence',
+          id: 'equation-divide',
+          name: 'Beide Seiten durch dieselbe Zahl teilen',
+          from: 'a = b',
+          to: 'a:c = b:c',
+          condition: 'c ≠ 0',
+        },
+        { kind: 'equivalence', id: 'equation-swap', name: 'Seiten tauschen', from: 'a = b', to: 'b = a' },
+      ],
+    },
+    {
+      title: 'Klammern auflösen',
+      formulas: [
+        { id: 'number-times-difference', name: 'Zahl mal Differenz', lhs: 'a(b-c)', rhs: 'ab-ac' },
+        { id: 'minus-before-sum', name: 'Minus vor einer Summe', lhs: '-(a+b)', rhs: '-a-b' },
+        { id: 'minus-before-difference', name: 'Minus vor einer Differenz', lhs: '-(a-b)', rhs: '-a+b' },
+      ],
+    },
+    {
+      title: 'Lösungsmenge ablesen',
+      formulas: [
+        { kind: 'solution-set', id: 'solution-single', name: 'Genau eine Lösung', line: 'x = c', set: 'L = {c}' },
+        {
+          kind: 'solution-set',
+          id: 'solution-empty',
+          name: 'Keine Lösung: x fällt weg, eine falsche Aussage bleibt',
+          line: '0 = 5',
+          set: 'L = { }',
+        },
+        {
+          kind: 'solution-set',
+          id: 'solution-all',
+          name: 'Unendlich viele Lösungen: x fällt weg, eine wahre Aussage bleibt',
+          line: '0 = 0',
+          set: 'L = ℚ',
+        },
+      ],
+    },
+  ],
 }
 
-export const allFormulas: readonly Formula[] = Object.values(formulaSheets).flatMap((groups) =>
+/** Every entry of the formula sheet, in sheet order. */
+export const allEntries: readonly SheetEntry[] = Object.values(formulaSheets).flatMap((groups) =>
   groups.flatMap((g) => g.formulas),
 )
+
+/** True for an identity `lhs = rhs` (as opposed to a rule for equations). */
+export function isFormula(entry: SheetEntry): entry is Formula {
+  return entry.kind === undefined || entry.kind === 'identity'
+}
+
+/** The identities of the formula sheet; the content tests check each for equivalence. */
+export const allFormulas: readonly Formula[] = allEntries.filter(isFormula)
 
 /** The formula groups of a topic; empty if the topic has none. */
 export function formulaGroupsOf(areaSlug: string, topicSlug: string): readonly FormulaGroup[] {
@@ -54,13 +123,46 @@ export function formulaGroupsOf(areaSlug: string, topicSlug: string): readonly F
   return Object.hasOwn(formulaSheets, key) ? formulaSheets[key]! : []
 }
 
-export function findFormula(id: string): Formula {
-  const formula = allFormulas.find((f) => f.id === id)
-  if (!formula) throw new Error(`Unknown formula id: ${id}`)
-  return formula
+/** The entry with this id, an identity or a rule. */
+export function findFormula(id: string): SheetEntry {
+  const entry = allEntries.find((f) => f.id === id)
+  if (!entry) throw new Error(`Unknown formula id: ${id}`)
+  return entry
 }
 
 /** LaTeX for a formula, e.g. `(a + b)^{2} = a^{2} + 2ab + b^{2}`. */
 export function formulaLatex(formula: Formula): string {
   return `${termToLatex(formula.lhs)} = ${termToLatex(formula.rhs)}`
+}
+
+/** Both sides of an equation in input syntax; sides may divide by a letter (`a:c`), so they are not evaluated. */
+function equationLatex(source: string): string {
+  const equals = source.indexOf('=')
+  if (equals < 0 || source.indexOf('=', equals + 1) >= 0) throw new Error(`Not an equation: ${source}`)
+  return `${termToLatex(source.slice(0, equals).trim())} = ${termToLatex(source.slice(equals + 1).trim())}`
+}
+
+/** LaTeX for `L = {c}`, `L = { }` or `L = ℚ`, written like `solutionSetToLatex`. */
+export function solutionSetSourceLatex(source: string): string {
+  const inner = source.replace(/^\s*L\s*=\s*/, '').trim()
+  if (inner === 'ℚ') return '\\mathbb{L} = \\mathbb{Q}'
+  const braces = /^\{(.*)\}$/.exec(inner)
+  if (!braces) throw new Error(`Not a solution set: ${source}`)
+  const element = braces[1]!.trim()
+  return element === '' ? '\\mathbb{L} = \\{\\,\\}' : `\\mathbb{L} = \\{${termToLatex(element)}\\}`
+}
+
+/** LaTeX for any entry of the formula sheet. */
+export function entryLatex(entry: SheetEntry): string {
+  switch (entry.kind) {
+    case undefined:
+    case 'identity':
+      return formulaLatex(entry)
+    case 'equivalence': {
+      const rule = `${equationLatex(entry.from)} \\iff ${equationLatex(entry.to)}`
+      return entry.condition ? `${rule} \\quad (${chainToLatex(entry.condition)})` : rule
+    }
+    case 'solution-set':
+      return `${equationLatex(entry.line)} \\;\\Rightarrow\\; ${solutionSetSourceLatex(entry.set)}`
+  }
 }

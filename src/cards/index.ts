@@ -119,6 +119,22 @@ export {
   type PieceLayout,
   type PlannedStep,
 } from './balance'
+export {
+  buildEquationSteps,
+  describeFrame,
+  equationStepsLatex,
+  equationStepsProblems,
+  equationStepsRows,
+  equationStepsTerms,
+  frameCount,
+  stepsDone,
+  stepTotal,
+  type AppendedSide,
+  type EquationStepsModel,
+  type EquationStepsPhase,
+  type EquationStepsRow,
+  type PlannedEquationStep,
+} from './equationSteps'
 export { CARDS_STORAGE_KEY, loadDeckState, restoreDeckState, saveDeckState, toStoredDeck, type StoredDeck } from './storage'
 export type {
   AreaLength,
@@ -132,9 +148,11 @@ export type {
   ChoiceOption,
   ChoiceQuestion,
   Deck,
+  EquationStepsLine,
+  EquationStepsWidget,
   TermQuestion,
   TermStep,
   TermStepsWidget,
 } from './types'
 export { useDeck } from './useDeck'
-export { deckMarkup, deckTerms, validateDeck } from './validate'
+export { deckLatex, deckMarkup, deckTerms, validateDeck } from './validate'

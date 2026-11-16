@@ -26,7 +26,7 @@ export interface Card {
  * Interactive elements. Each kind has its own component (see
  * src/components/cards/CardWidgetView.tsx); new kinds are added to this union.
  */
-export type CardWidget = TermStepsWidget | AreaModelWidget | BalanceWidget
+export type CardWidget = TermStepsWidget | AreaModelWidget | BalanceWidget | EquationStepsWidget
 
 /**
  * A transformation shown line by line: the start term, then `= term` per step
@@ -122,6 +122,34 @@ export interface BalanceWidget {
 }
 
 export type BalanceMode = 'steps' | 'explore'
+
+/**
+ * A linear equation solved line by line, in school notation: each line with
+ * the operation written next to it, the next line below. Revealed step by
+ * step; for `+`, `−`, `·` and `:` an intermediate line first shows the
+ * operation written onto both sides (highlighted), then the simplified line
+ * replaces it. Logic and checks: src/cards/equationSteps.ts.
+ */
+export interface EquationStepsWidget {
+  kind: 'equation-steps'
+  /** The equation in input syntax, e.g. `3x + 2 = x + 8`; linear in one variable. */
+  start: string
+  /** Each step applied to the line before must give its equation (checked with `checkStep`). */
+  steps: EquationStepsLine[]
+  /** Optional last line with the solution set, e.g. `L = {3}`, `L = { }`, `L = ℚ`; must be the right one. */
+  solution?: string
+  /** Accessible name of the list. Default: "Lösungsweg". */
+  label?: string
+}
+
+export interface EquationStepsLine {
+  /** As written next to an equation: `| - x`, `| : 2`, `| · (-1)`, `⇄` or `T` (Term umformen). */
+  operation: string
+  /** The line after the operation, in input syntax; how far it is simplified is up to the author. */
+  equation: string
+  /** Explanation shown next to the operation. */
+  note?: Markup
+}
 
 export type CardQuestion = ChoiceQuestion | TermQuestion
 

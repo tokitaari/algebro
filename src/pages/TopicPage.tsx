@@ -6,11 +6,13 @@ import Practice from '../components/Practice'
 import WorkedExampleCard from '../components/WorkedExampleCard'
 import { findSubtopic } from '../catalog'
 import { findContent, findFormula } from '../content'
+import { isTermTopic } from '../math'
 import NotFound from './NotFound'
 
 /**
  * A subtopic at `/area/topic/subtopic`: explanation as a card deck, worked
- * examples, formulas and the practice area.
+ * examples, formulas and the practice area. Equation subtopics have no
+ * practice yet; the line-by-line input follows separately.
  */
 export default function TopicPage() {
   const params = useParams()
@@ -57,7 +59,14 @@ export default function TopicPage() {
       </section>
 
       {/* Keyed by id: switching subtopics starts a fresh series instead of reusing the old state. */}
-      <Practice key={id} topic={id} />
+      {isTermTopic(id) ? (
+        <Practice key={id} topic={id} />
+      ) : (
+        <section aria-labelledby="uebung" className="panel practice">
+          <h2 id="uebung">Übung</h2>
+          <p>Die Übungsaufgaben zu diesem Teilthema folgen bald. Bis dahin kannst du die Beispiele oben Schritt für Schritt nachrechnen.</p>
+        </section>
+      )}
     </>
   )
 }

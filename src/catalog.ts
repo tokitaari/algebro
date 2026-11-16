@@ -61,6 +61,29 @@ export const catalog: readonly Area[] = [
           },
         ],
       },
+      {
+        slug: 'lineare-gleichungen',
+        title: 'Lineare Gleichungen',
+        summary: 'Schritt für Schritt umformen, bis die Lösung dasteht.',
+        grade: 8,
+        subtopics: [
+          {
+            slug: 'umformen',
+            title: 'Gleichungen umformen',
+            summary: 'Auf beiden Seiten dasselbe tun, bis x allein steht.',
+          },
+          {
+            slug: 'klammern',
+            title: 'Gleichungen mit Klammern',
+            summary: 'Erst die Klammern auflösen, dann wie gewohnt umformen.',
+          },
+          {
+            slug: 'sonderfaelle',
+            title: 'Sonderfälle',
+            summary: 'Wenn x verschwindet: keine oder unendlich viele Lösungen.',
+          },
+        ],
+      },
     ],
   },
 ]
