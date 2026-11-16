@@ -498,12 +498,14 @@ export default function AreaModelView({ widget }: { widget: AreaModelWidget }) {
         aria-label={figureName}
       >
         <defs>
-          <pattern id={`${ids}-hatch`} width={8} height={8} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <rect className="area-hatch-bg" width={8} height={8} />
-            <line className="area-hatch-line" x1={0} y1={0} x2={0} y2={8} />
+          <pattern id={`${ids}-hatch`} width={10} height={10} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect className="area-hatch-bg" width={10} height={10} />
+            <line className="area-hatch-line" x1={0} y1={0} x2={0} y2={10} />
           </pattern>
-          <pattern id={`${ids}-dots`} width={8} height={8} patternUnits="userSpaceOnUse">
-            <circle className="area-dot" cx={4} cy={4} r={1.8} />
+          {/* The corner counts positive again: opaque, in the colours of the positive areas. */}
+          <pattern id={`${ids}-dots`} width={10} height={10} patternUnits="userSpaceOnUse">
+            <rect className="area-dots-bg" width={10} height={10} />
+            <circle className="area-dot" cx={5} cy={5} r={1.6} />
           </pattern>
         </defs>
         <rect className="area-outer" x={0} y={0} width={width} height={height} aria-hidden="true" />

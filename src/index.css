@@ -1121,6 +1121,20 @@ p .tex,
   pointer-events: none;
 }
 
+/* Labels in partial areas get a halo in the surface colour, so they stay readable on patterns. */
+.area-svg .area-term,
+.area-svg .area-value,
+.area-svg .area-mark {
+  paint-order: stroke fill;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.area-svg .area-term {
+  font-weight: 600;
+}
+
 .area-svg .area-side-label {
   fill: var(--accent);
   font-weight: 600;
@@ -1162,7 +1176,7 @@ p .tex,
 }
 
 .area-cell.is-back rect {
-  stroke: var(--success);
+  stroke: var(--accent);
 }
 
 .area-cell.is-like rect {
@@ -1177,10 +1191,16 @@ p .tex,
 .area-hatch-line {
   stroke: var(--danger);
   stroke-width: 1.5;
+  stroke-opacity: 0.4;
+}
+
+.area-dots-bg {
+  fill: var(--accent-soft);
 }
 
 .area-dot {
-  fill: var(--success);
+  fill: var(--accent);
+  fill-opacity: 0.45;
 }
 
 .area-kept {
@@ -1218,53 +1238,54 @@ p .tex,
 }
 
 /* Like-term groups: colour plus a marker shape, so colour is never the only hint.
+   The colours avoid red (strips) and the accent (kept rectangle).
    Only strokes here: hatched and dotted areas get their fill from a pattern attribute. */
 .area-cell.area-like-0 rect {
-  stroke: var(--pink);
-}
-
-.area-cell.area-like-1 rect {
-  stroke: var(--accent);
-}
-
-.area-cell.area-like-2 rect {
-  stroke: var(--success);
-}
-
-.area-cell.area-like-3 rect {
   stroke: var(--warning);
 }
 
+.area-cell.area-like-1 rect {
+  stroke: var(--success);
+}
+
+.area-cell.area-like-2 rect {
+  stroke: var(--pink);
+}
+
+.area-cell.area-like-3 rect {
+  stroke: var(--text);
+}
+
 .area-svg .area-like-0 .area-mark {
-  fill: var(--pink);
-}
-
-.area-svg .area-like-1 .area-mark {
-  fill: var(--accent);
-}
-
-.area-svg .area-like-2 .area-mark {
-  fill: var(--success);
-}
-
-.area-svg .area-like-3 .area-mark {
   fill: var(--warning);
 }
 
+.area-svg .area-like-1 .area-mark {
+  fill: var(--success);
+}
+
+.area-svg .area-like-2 .area-mark {
+  fill: var(--pink);
+}
+
+.area-svg .area-like-3 .area-mark {
+  fill: var(--text);
+}
+
 .area-group-mark.area-like-0 {
-  color: var(--pink);
+  color: var(--warning);
 }
 
 .area-group-mark.area-like-1 {
-  color: var(--accent);
-}
-
-.area-group-mark.area-like-2 {
   color: var(--success);
 }
 
+.area-group-mark.area-like-2 {
+  color: var(--pink);
+}
+
 .area-group-mark.area-like-3 {
-  color: var(--warning);
+  color: var(--text);
 }
 
 /* Handles: a large invisible hit circle; only the handle blocks scrolling on touch. */
