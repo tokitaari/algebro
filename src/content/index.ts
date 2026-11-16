@@ -6,7 +6,7 @@ import type { TopicContent } from './types'
 
 export { allFormulas, findFormula, formulaGroupsOf, formulaLatex, formulaSheets } from './formulas'
 export { chainPieces, chainToLatex, splitChain, splitMarkup, termToLatex, type Segment } from './markup'
-export type { ExplanationSection, Formula, FormulaGroup, Markup, TopicContent, WorkedExample } from './types'
+export type { Formula, FormulaGroup, Markup, TopicContent, WorkedExample } from './types'
 
 /** Explanations, worked examples and formulas per subtopic. */
 export const topicContent = {

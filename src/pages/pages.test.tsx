@@ -22,10 +22,9 @@ describe('topic page', () => {
     const content = topicContent[topic]
     const { container } = renderAt(`/${topic}`)
 
-    for (const section of content.sections) {
-      expect(screen.getByRole('heading', { level: 3, name: section.heading })).toBeInTheDocument()
-    }
-    expect(screen.getByRole('heading', { level: 3, name: 'Achtung, typische Fehler' })).toBeInTheDocument()
+    const firstCard = content.cards[0]!
+    expect(screen.getByRole('heading', { level: 3, name: firstCard.title })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Achtung, typische Fehler' })).not.toBeInTheDocument()
 
     const examples = within(screen.getByRole('region', { name: 'Beispiele' }))
     content.examples.forEach((example, i) => {

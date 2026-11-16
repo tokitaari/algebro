@@ -8,13 +8,11 @@ import { allFormulas, findContent, findFormula, formulaGroupsOf, formulaLatex, f
 import { chainToLatex, splitChain, splitMarkup, termToLatex } from './markup'
 import type { TopicContent } from './types'
 
-/** Every markup text of a topic: paragraphs, procedure steps, pitfalls, example comments. */
+/** Every markup text of a topic: all texts of its cards and the example comments. */
 function markupTexts(content: TopicContent): string[] {
   return [
-    ...content.sections.flatMap((s) => [...s.paragraphs, ...(s.steps ?? [])]),
-    ...content.pitfalls,
+    ...deckMarkup({ id: 'content', cards: content.cards }),
     ...content.examples.flatMap((e) => (e.comment ? [e.comment] : [])),
-    ...(content.cards ? deckMarkup({ id: 'content', cards: content.cards }) : []),
   ]
 }
 
@@ -104,19 +102,24 @@ describe('topic content', () => {
   describe.each(TOPIC_IDS)('%s', (topic) => {
     const content = topicContent[topic]
 
-    it('has an explanation, pitfalls and at least one worked example', () => {
-      expect(content.sections.length).toBeGreaterThan(0)
-      for (const section of content.sections) expect(section.paragraphs.length).toBeGreaterThan(0)
-      expect(content.pitfalls.length).toBeGreaterThan(0)
+    it('has a card deck and at least one worked example', () => {
+      expect(content.cards.length).toBeGreaterThan(0)
       expect(content.examples.length).toBeGreaterThan(0)
     })
 
-    it('has a valid card deck, if any', () => {
-      if (content.cards) expect(validateDeck({ id: topic, cards: content.cards })).toEqual([])
+    it('has a valid card deck', () => {
+      expect(validateDeck({ id: topic, cards: content.cards })).toEqual([])
+    })
+
+    it('uses the card features: questions, term steps and the area model', () => {
+      const cards = content.cards
+      expect(cards.some((c) => c.question?.kind === 'choice')).toBe(true)
+      expect(cards.some((c) => c.question?.kind === 'term')).toBe(true)
+      expect(cards.some((c) => c.widget?.kind === 'area-model')).toBe(true)
     })
 
     it('typesets every term of its card widgets and term questions', () => {
-      for (const term of content.cards ? deckTerms({ id: topic, cards: content.cards }) : []) {
+      for (const term of deckTerms({ id: topic, cards: content.cards })) {
         expect(() => renderStrict(termToLatex(term)), term).not.toThrow()
       }
     })
