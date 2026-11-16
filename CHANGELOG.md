@@ -2,6 +2,38 @@
 
 Alle wichtigen Änderungen an Lemmio. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/). Ein Release entspricht einer Lerneinheit; die Versionsnummer zählt die Einheiten.
 
+## [0.0.2] – 2026-11-16
+
+Einheit 2: Lineare Gleichungen und Umbau auf Karten.
+
+### Hinzugefügt
+
+- Neues Thema „Lineare Gleichungen“ (Klasse 8) mit drei Teilthemen: Gleichungen umformen, Gleichungen mit Klammern, Sonderfälle (keine oder unendlich viele Lösungen). Nur ganze Zahlen.
+- Erklärungen als Kartenfolge: eine Karte zur Zeit mit Text, höchstens einem interaktiven Element und meist einer Zwischenfrage (Auswahl oder Term). „Weiter“ bleibt gesperrt, bis die Frage gelöst ist oder die Lösung angezeigt wurde; die Kartenleiste springt nur zu erreichten Karten. Der Kartenstand wird je Teilthema gespeichert (`lemmio:cards`).
+- Flächenmodell für Ausmultiplizieren, binomische Formeln 1 bis 3 und Faktorisieren, in drei Modi: Teilflächen aufdecken, Seiten aufdecken und maßstäblich erkunden (Längen ziehen, Zahlenprobe). Negative Summanden erscheinen als abgeschnittene Streifen.
+- Waage für Gleichungen: Gewichte und Ballons, Umformungen auf beiden Seiten (die Waage bleibt im Gleichgewicht) oder frei ausprobieren, auch auf nur einer Seite (die Waage kippt). Division als Aufteilen in gleiche Gruppen.
+- Animation der Umformungsschritte: Erst erscheint die Zwischenzeile mit der Umformung auf beiden Seiten, dann die zusammengefasste Zeile; am Ende steht die Rechnung in Schulnotation mit Lösungsmenge.
+- Übung für Gleichungen: Serien aus 10 Aufgaben, Zeile für Zeile. Zu jeder neuen Zeile wird die Umformung angegeben (`| + 3x`, `| − 5`, `| · 2`, `| : 4`, „Term umformen“, „⇄“) und geprüft, ebenso beide Seiten der neuen Zeile. Unzulässige Umformungen (Mal oder geteilt durch einen Term mit x, Mal oder geteilt durch 0, nichtlineare Umformungen) werden mit Hinweis abgelehnt. Am Ende steht die Lösungsmenge: `L = {c}`, `L = { }` oder `L = ℚ`.
+- Wertung der Gleichungsübung nur über das Ergebnis: Zeilenfehler lassen sich beliebig oft korrigieren, eine falsche Lösungsmenge beendet die Aufgabe, „Lösung anzeigen“ zählt als falsch. Musterlösung in Schulnotation nach jeder Aufgabe.
+- Formelsatz mit Regeln zu Gleichungen: Äquivalenzumformungen, Klammern auflösen, Lösungsmenge ablesen.
+- Gliederung nach Bereich, Thema und Teilthema mit Klassen-Badge und Filter auf der Startseite (`?klasse=8`).
+- Dokumentation: Architekturüberblick und Anleitung für neue Themen auf den Stand von Einheit 2 gebracht.
+
+### Geändert
+
+- Alle Teilthemen aus Einheit 1 sind auf Karten umgestellt, mit Zwischenfragen und Flächenmodell. Das frühere Erklärformat entfällt.
+- Routen folgen Bereich/Thema/Teilthema, z. B. `/algebra/terme/faktorisieren` und `/algebra/lineare-gleichungen/umformen`. Die Routen aus Version 0.0.1 (z. B. `/faktorisieren`) gibt es nicht mehr und werden nicht weitergeleitet.
+- Der Formelsatz unter `/formelsatz` ist nach Themen gegliedert.
+- Breadcrumb, Fußzeile und Kopfnavigation leiten sich aus dem Katalog ab.
+
+### Technik
+
+- Katalog (`src/catalog.ts`) als einzige Quelle der Struktur.
+- Karten-Framework (`src/cards`) mit Datenmodell, Zustand und Prüfung der Decks; Animations-Hilfsschicht auf Basis der Web Animations API (`src/motion`). Animationen beachten `prefers-reduced-motion`.
+- Mathe-Kern für Gleichungen (`src/math/equations`) ohne React-Abhängigkeit: Lesen und Prüfen von Umformungen und Zeilen, Lösungsmenge, Generatoren für die drei Teilthemen, Musterlösung mit Umformungen.
+- Tests prüfen alle Kartentexte, Gleichungen, Formeln und Widget-Daten.
+- Demo-Seite `/dev/karten` mit Beispielkarten, nur im Dev-Server und nicht im Build.
+
 ## [0.0.1] – 2026-11-15
 
 Erstes Release: Einheit 1, Terme und binomische Formeln.
@@ -33,4 +65,5 @@ Erstes Release: Einheit 1, Terme und binomische Formeln.
 
 - App umbenannt von Algebro in Lemmio (Code, Repo, Pages-Pfad, Verzeichnis, Dev-Container).
 
+[0.0.2]: https://github.com/tokitaari/lemmio/releases/tag/release-v0.0.2
 [0.0.1]: https://github.com/tokitaari/lemmio/releases/tag/release-v0.0.1

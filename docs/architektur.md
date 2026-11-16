@@ -2,7 +2,7 @@
 
 Lemmio ist eine reine Frontend-SPA: React, TypeScript und Vite, statisch auf GitHub Pages gehostet. Es gibt kein Backend und keine Konten. Zustand, der über einen Besuch hinausgeht, liegt in `localStorage`.
 
-Stand: nach Einheit 2 (Lineare Gleichungen und Umbau auf Karten), vor dem Release `release-v0.0.2`.
+Stand: Release `release-v0.0.2` (Lineare Gleichungen und Umbau auf Karten).
 
 ## Schichten
 
