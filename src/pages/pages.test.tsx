@@ -52,11 +52,17 @@ describe('topic page', () => {
     expect(practice.getByRole('button', { name: 'Prüfen' })).toBeInTheDocument()
   })
 
-  it.each(EQUATION_TOPIC_IDS)('%s announces the practice instead of showing a task for now', (topic) => {
+  it.each(EQUATION_TOPIC_IDS)('%s has a practice area with an equation and the line input', (topic) => {
     renderAt(`/${topic}`)
     const practice = within(screen.getByRole('region', { name: 'Übung' }))
-    expect(practice.getByText(/folgen bald/)).toBeInTheDocument()
-    expect(practice.queryByRole('button', { name: 'Prüfen' })).not.toBeInTheDocument()
+    expect(practice.getByText('Aufgabe 1 von 10')).toBeInTheDocument()
+    expect(practice.getByRole('list', { name: 'Deine Rechnung' })).toBeInTheDocument()
+    expect(practice.getByLabelText('Umformung')).toBeInTheDocument()
+    expect(practice.getByLabelText('Neue Zeile')).toBeInTheDocument()
+    expect(practice.getByLabelText('Lösungsmenge')).toBeInTheDocument()
+    expect(practice.getByRole('button', { name: 'Zeile prüfen' })).toBeInTheDocument()
+    expect(practice.getByRole('button', { name: 'Lösungsmenge prüfen' })).toBeInTheDocument()
+    expect(practice.queryByText(/folgen bald/)).not.toBeInTheDocument()
   })
 
   it('shows a worked equation in school notation with the solution set at the end', () => {

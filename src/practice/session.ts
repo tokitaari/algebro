@@ -17,14 +17,20 @@ export type Feedback =
   | { kind: 'invalid'; error: TermErrorInfo; input: string }
 
 /**
- * One practice series. `outcomes[i]` is the result of `tasks[i]`; the current
- * task is finished as soon as `outcomes.length > index`. `index === tasks.length`
+ * What every practice series has in common, whatever the tasks are (terms or
+ * equations). `outcomes[i]` is the result of `tasks[i]`; the current task is
+ * finished as soon as `outcomes.length > index`. `index === tasks.length`
  * means the series is over and the summary is shown.
  */
-export interface Session {
-  tasks: readonly Task[]
+export interface SeriesState {
+  tasks: readonly unknown[]
   index: number
   outcomes: readonly Outcome[]
+}
+
+/** A series of term tasks. */
+export interface Session extends SeriesState {
+  tasks: readonly Task[]
   feedback: Feedback | null
 }
 
@@ -43,15 +49,15 @@ export function currentTask(session: Session): Task | undefined {
   return session.tasks[session.index]
 }
 
-export function isTaskFinished(session: Session): boolean {
+export function isTaskFinished(session: SeriesState): boolean {
   return session.index < session.tasks.length && session.outcomes.length > session.index
 }
 
-export function isSeriesOver(session: Session): boolean {
+export function isSeriesOver(session: SeriesState): boolean {
   return session.index >= session.tasks.length
 }
 
-export function countCorrect(session: Session): number {
+export function countCorrect(session: SeriesState): number {
   return session.outcomes.filter((o) => o === 'correct').length
 }
 
@@ -94,7 +100,7 @@ export function nextTask(session: Session): Session {
 }
 
 /** What happened between two states, if a task was finished in between. */
-export function finishedBetween(before: Session, after: Session): FinishedTask | null {
+export function finishedBetween(before: SeriesState, after: SeriesState): FinishedTask | null {
   if (after.outcomes.length !== before.outcomes.length + 1) return null
   const correct = after.outcomes[after.outcomes.length - 1] === 'correct'
   const total = after.tasks.length
